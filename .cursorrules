@@ -1,0 +1,278 @@
+# 🎯 Tarot System - Cursor Rules & Development Guidelines
+
+## 📋 PROJECT OVERVIEW
+Tarot Reading AI System - A modern web application for AI-powered tarot readings with personalization capabilities.
+
+## 🏗️ TECH STACK (AGREED)
+- **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS
+- **Backend**: FastAPI + Python 3.11+ + Motor (async MongoDB)
+- **Database**: MongoDB Atlas (512MB free tier)
+- **AI**: Ollama (Local LLM) + Groq API (fallback)
+- **Deployment**: Vercel (Frontend) + Render.com (Backend)
+- **Cost**: 100% FREE hosting and services
+
+## 🎨 FRONTEND GUIDELINES
+
+### Next.js 14 Best Practices
+- Use App Router (not Pages Router)
+- Implement TypeScript strictly
+- Use Server Components by default, Client Components when needed
+- Follow Next.js 14 file conventions:
+  ```
+  app/
+  ├── (auth)/
+  ├── api/
+  ├── components/
+  ├── globals.css
+  ├── layout.tsx
+  └── page.tsx
+  ```
+
+### Styling & UI
+- Use Tailwind CSS for styling
+- Implement Shadcn/ui components
+- Mobile-first responsive design
+- Dark/Light theme support
+- Vietnamese language support
+
+### State Management
+- Use Zustand for global state
+- React Hook Form + Zod for form validation
+- Local storage for session data (anonymous users)
+
+## ⚙️ BACKEND GUIDELINES
+
+### FastAPI Structure
+```
+backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── config.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   ├── tarot.py
+│   │   └── reading.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── v1/
+│   │   │   ├── __init__.py
+│   │   │   ├── readings.py
+│   │   │   ├── users.py
+│   │   │   └── ai.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── database.py
+│   │   ├── security.py
+│   │   └── config.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── ai_service.py
+│   │   ├── tarot_service.py
+│   │   └── user_service.py
+│   └── utils/
+│       ├── __init__.py
+│       └── helpers.py
+├── requirements.txt
+└── Dockerfile
+```
+
+### Python Best Practices
+- Use type hints everywhere
+- Async/await for database operations
+- Pydantic models for validation
+- Environment variables for configuration
+- Proper error handling and logging
+
+## 🗄️ DATABASE DESIGN
+
+### MongoDB Collections
+1. **users** - Optional user accounts
+2. **tarot_cards** - Static tarot card data
+3. **readings** - Core reading data
+4. **ai_training_data** - Training data collection
+5. **sessions** - Anonymous user sessions
+
+### Schema Guidelines
+- Use ObjectId for _id fields
+- Include created_at and updated_at timestamps
+- Implement proper indexing for performance
+- Follow MongoDB naming conventions
+
+## 🤖 AI INTEGRATION
+
+### Local LLM (Primary)
+- Use Ollama for local model hosting
+- Support Llama 3.1 8B and Mistral 7B models
+- Implement fallback to cloud APIs
+- Collect training data for personalization
+
+### AI Service Structure
+```python
+class AIService:
+    async def generate_reading(self, question: str, cards: List[Card]) -> str
+    async def train_model(self, training_data: List[dict]) -> bool
+    async def get_personalized_response(self, user_id: str, question: str) -> str
+```
+
+## 🔐 SECURITY & PRIVACY
+
+### User Management Strategy
+- **Phase 1**: Anonymous users with session tracking
+- **Phase 2**: Optional user accounts (email signup)
+- **Phase 3**: Full personalization with AI training
+
+### Data Protection
+- GDPR compliance for EU users
+- Anonymize data after 30 days (anonymous users)
+- User data export and deletion capabilities
+- Secure API endpoints with rate limiting
+
+## 🚀 DEPLOYMENT STRATEGY
+
+### Environment Variables
+```bash
+# Frontend (Vercel)
+NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
+NEXT_PUBLIC_APP_NAME=Tarot AI
+
+# Backend (Render)
+MONGODB_URI=mongodb+srv://...
+GROQ_API_KEY=gsk_...
+OLLAMA_URL=http://localhost:11434
+```
+
+### Deployment Checklist
+- [ ] Frontend deployed to Vercel
+- [ ] Backend deployed to Render.com
+- [ ] MongoDB Atlas connected
+- [ ] Environment variables configured
+- [ ] Domain and SSL setup
+- [ ] Monitoring and logging
+
+## 📊 DEVELOPMENT PHASES
+
+### Phase 1: MVP (Weeks 1-3)
+- Basic tarot card system
+- Anonymous readings
+- Local AI integration
+- Simple UI/UX
+
+### Phase 2: Enhancement (Weeks 4-6)
+- User accounts (optional)
+- Reading history
+- AI personalization
+- Advanced UI features
+
+### Phase 3: Advanced Features (Weeks 7-9)
+- AI model training
+- Analytics dashboard
+- Premium features
+- Performance optimization
+
+## 🧪 TESTING STRATEGY
+
+### Frontend Testing
+- Unit tests with Jest
+- Component tests with React Testing Library
+- E2E tests with Playwright
+- Accessibility testing
+
+### Backend Testing
+- Unit tests with pytest
+- API tests with FastAPI TestClient
+- Database integration tests
+- AI service mocking
+
+## 📝 CODE QUALITY
+
+### Frontend Standards
+- ESLint + Prettier configuration
+- TypeScript strict mode
+- Component documentation
+- Accessibility (ARIA) compliance
+
+### Backend Standards
+- Black for code formatting
+- isort for import sorting
+- mypy for type checking
+- docstring documentation
+
+## 🎯 PERFORMANCE TARGETS
+
+### Frontend
+- Lighthouse score > 90
+- First Contentful Paint < 1.5s
+- Time to Interactive < 3s
+- Bundle size < 500KB
+
+### Backend
+- API response time < 200ms
+- AI response time < 5s
+- Database query time < 100ms
+- 99% uptime target
+
+## 🔄 GIT WORKFLOW
+
+### Branch Strategy
+- `main` - Production code
+- `develop` - Development branch
+- `feature/*` - Feature branches
+- `hotfix/*` - Emergency fixes
+
+### Commit Convention
+```
+feat: add user authentication
+fix: resolve AI response timeout
+docs: update API documentation
+style: format code with prettier
+refactor: optimize database queries
+test: add unit tests for AI service
+```
+
+## 📚 DOCUMENTATION
+
+### Required Documentation
+- README.md with setup instructions
+- API documentation (OpenAPI/Swagger)
+- Database schema documentation
+- Deployment guide
+- User manual
+
+## 🚨 IMPORTANT REMINDERS
+
+### Always Consider
+- Mobile responsiveness
+- Vietnamese language support
+- SEO optimization
+- Performance optimization
+- Security best practices
+- User privacy protection
+- Cost optimization (stay within free tiers)
+
+### Avoid
+- Hardcoded API keys
+- Sensitive data in logs
+- Complex dependencies
+- Over-engineering solutions
+- Ignoring accessibility
+- Poor error handling
+
+## 🎉 SUCCESS METRICS
+
+### Technical Metrics
+- Zero-cost hosting (free tiers only)
+- < 3s page load time
+- > 95% test coverage
+- Zero security vulnerabilities
+
+### Business Metrics
+- User engagement (readings per session)
+- AI response quality (user ratings)
+- System uptime > 99%
+- User retention rate
+
+---
+
+**Remember**: This is a 100% FREE project. Always prioritize cost-effective solutions and stay within free tier limits while maintaining quality and performance.

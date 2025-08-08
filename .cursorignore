@@ -1,0 +1,23 @@
+# Override globalIgnore for this project
+# Allow .env files in this project
+!.env
+!config.env
+!*.env
+
+# Allow other common config files
+!*.config
+!*.conf
+!*.cfg
+
+# Allow database files
+!*.db
+!*.sqlite
+!*.sqlite3
+
+# Allow log files for development
+!*.log
+!logs/
+
+# Allow temporary files for development
+!*.tmp
+!*.temp
