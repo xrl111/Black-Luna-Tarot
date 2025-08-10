@@ -64,7 +64,7 @@ ENVIRONMENT=development
 DEBUG=true
 
 # Database
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/tarot_system
+MONGODB_URI=
 DATABASE_NAME=tarot_system
 
 # Security
