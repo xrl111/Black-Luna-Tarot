@@ -2,7 +2,7 @@ import { useState } from "react";
 import SEO from "@/components/SEO";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Search, Filter, Grid, List } from "lucide-react";
+import { Search, Filter, Grid, List, Flame, Droplets, Wind, Mountain, ImageIcon } from "lucide-react";
 import { ToggleGroup } from "@/components/ui/toggle-button";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -112,11 +112,11 @@ const TarotCards = () => {
   ];
 
   const elements = [
-    { value: "all", label: "Tất cả nguyên tố" },
-    { value: "fire", label: "🔥 Lửa (Fire)" },
-    { value: "water", label: "🌊 Nước (Water)" },
-    { value: "air", label: "💨 Khí (Air)" },
-    { value: "earth", label: "🌍 Đất (Earth)" },
+    { value: "all", label: "Tất cả nguyên tố", icon: null },
+    { value: "fire", label: "Lửa (Fire)", icon: Flame },
+    { value: "water", label: "Nước (Water)", icon: Droplets },
+    { value: "air", label: "Khí (Air)", icon: Wind },
+    { value: "earth", label: "Đất (Earth)", icon: Mountain },
   ];
 
   if (isLoading) {
@@ -229,15 +229,21 @@ const TarotCards = () => {
                   <SelectValue placeholder="Chọn nguyên tố" />
                 </SelectTrigger>
                 <SelectContent className="tarot-select-content">
-                  {elements.map((element) => (
-                    <SelectItem
-                      key={element.value}
-                      value={element.value}
-                      className="tarot-select-item"
-                    >
-                      {element.label}
-                    </SelectItem>
-                  ))}
+                  {elements.map((element) => {
+                    const Icon = element.icon;
+                    return (
+                      <SelectItem
+                        key={element.value}
+                        value={element.value}
+                        className="tarot-select-item"
+                      >
+                        <div className="flex items-center gap-2">
+                          {Icon && <Icon className="w-4 h-4 text-muted-foreground" />}
+                          {element.label}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
 
@@ -270,7 +276,7 @@ const TarotCards = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {cards.map((card: TarotCard, index: number) => {
                 const imageUrl = card.image_url
-                  ? `/api/v1/tarot-cards/image/${card.id}`
+                  ? apiUrl(`/api/v1/tarot-cards/image/${card.id}`)
                   : null;
 
                 return (
@@ -303,7 +309,7 @@ const TarotCards = () => {
                               imageUrl ? "hidden" : ""
                             }`}
                           >
-                            <span className="text-4xl">🃏</span>
+                            <ImageIcon className="w-12 h-12 text-muted-foreground/30" />
                           </div>
                         </div>
                         <CardTitle className="font-cinzel text-lg">
@@ -332,7 +338,7 @@ const TarotCards = () => {
             <div className="space-y-4">
               {cards.map((card: TarotCard, index: number) => {
                 const imageUrl = card.image_url
-                  ? `/api/v1/tarot-cards/image/${card.id}`
+                  ? apiUrl(`/api/v1/tarot-cards/image/${card.id}`)
                   : null;
 
                 return (
@@ -366,7 +372,7 @@ const TarotCards = () => {
                                 imageUrl ? "hidden" : ""
                               }`}
                             >
-                              <span className="text-2xl">🃏</span>
+                              <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
                             </div>
                           </div>
                           <div className="flex-1">

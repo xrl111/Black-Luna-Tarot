@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import SEO from "@/components/SEO";
-import { BookOpen, Heart, Shield, Sparkles } from "lucide-react";
+import { BookOpen, Heart, Shield, Sparkles, CheckCircle2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -133,8 +133,8 @@ const About = () => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <h4 className="font-semibold text-green-600">
-                  ✅ Backend APIs
+                <h4 className="font-semibold text-green-600 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> Backend APIs
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Tarot Cards API</li>
@@ -144,8 +144,8 @@ const About = () => {
                 </ul>
               </div>
               <div className="space-y-2">
-                <h4 className="font-semibold text-blue-600">
-                  ✅ Frontend Features
+                <h4 className="font-semibold text-blue-600 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> Frontend Features
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Browse Tarot Cards</li>
@@ -155,8 +155,8 @@ const About = () => {
                 </ul>
               </div>
               <div className="space-y-2">
-                <h4 className="font-semibold text-purple-600">
-                  ✅ Technologies
+                <h4 className="font-semibold text-purple-600 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> Technologies
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• FastAPI + MongoDB</li>

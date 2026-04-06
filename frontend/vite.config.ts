@@ -24,6 +24,8 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 1200,
     },
     server: {
+      host: true, // Listen on all addresses
+      allowedHosts: true, // Allow any host (Cloudflare Tunnel, Ngrok, etc)
       proxy: {
         "/api": {
           target: env.VITE_API_PROXY || "http://localhost:8000",

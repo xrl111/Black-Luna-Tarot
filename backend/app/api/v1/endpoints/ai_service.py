@@ -12,15 +12,22 @@ import structlog
 
 from app.core.database import get_ai_training_data_collection, get_tarot_cards_collection
 from app.services.ai_service import AIService
+from app.services.harness_router import HarnessRouterService
 
 logger = structlog.get_logger()
 router = APIRouter()
+
+class LLMConfig(BaseModel):
+    provider: str
+    api_key: str
+    model: str
 
 class GenerateReadingRequest(BaseModel):
     question: str
     cards: list
     reading_type: Optional[str] = None
     reading_detail: Optional[str] = None  # "quick" | "full"
+    llm_config: Optional[LLMConfig] = None
     class Config:
         json_schema_extra = {
             "example": {
@@ -86,7 +93,8 @@ async def generate_reading(
             question=payload.question,
             cards_drawn=enriched_cards,
             reading_type=payload.reading_type or "general",
-            detail=(payload.reading_detail or "quick")
+            detail=(payload.reading_detail or "quick"),
+            llm_config=payload.llm_config.model_dump() if payload.llm_config else None
         )
 
         logger.info("Generated AI reading", question=payload.question[:50])
@@ -138,7 +146,8 @@ async def generate_reading_stream(
                 question=payload.question,
                 cards_drawn=enriched_cards,
                 reading_type=payload.reading_type or "general",
-                detail=(payload.reading_detail or "quick")
+                detail=(payload.reading_detail or "quick"),
+                llm_config=payload.llm_config.model_dump() if payload.llm_config else None
             ):
                 yield chunk
         return StreamingResponse(
@@ -171,3 +180,20 @@ async def train_model(
     except Exception as e:
         logger.error("Failed to train model", error=str(e))
         raise HTTPException(status_code=500, detail="Failed to train model")
+
+
+class IntakeRequest(BaseModel):
+    question: str
+
+@router.post("/intake", summary="Get spread recommendation (AutoHarness Router)")
+async def intake_question(payload: IntakeRequest):
+    """
+    Classify user intent and return a recommended spread schema.
+    """
+    try:
+        service = HarnessRouterService()
+        result = await service.get_intake_recommendation(payload.question)
+        return result
+    except Exception as e:
+        logger.error("Failed to process intake", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to process intake router")

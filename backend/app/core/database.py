@@ -139,20 +139,16 @@ async def create_indexes() -> None:
         logger.error("Failed to create indexes", error=str(e))
         raise
 
-def get_database() -> motor.motor_asyncio.AsyncIOMotorDatabase:
+def get_database() -> Optional[motor.motor_asyncio.AsyncIOMotorDatabase]:
     """
     Get database instance
     """
-    if database is None:
-        raise RuntimeError("Database not initialized. Call init_db() first.")
     return database
 
-def get_client() -> motor.motor_asyncio.AsyncIOMotorClient:
+def get_client() -> Optional[motor.motor_asyncio.AsyncIOMotorClient]:
     """
     Get database client
     """
-    if client is None:
-        raise RuntimeError("Database client not initialized. Call init_db() first.")
     return client
 
 # Collection getters for easy access

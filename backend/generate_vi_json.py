@@ -31,7 +31,7 @@ except Exception:
     # Fallback defaults
     class _Settings:
         OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-        OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2:7b-instruct-q4_K_M")
+        OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:1.5b")
         OLLAMA_TIMEOUT = int(os.environ.get("OLLAMA_TIMEOUT", "180"))
 
     settings = _Settings()  # type: ignore

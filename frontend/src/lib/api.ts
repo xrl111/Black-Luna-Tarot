@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiOrigin = (import.meta as any).env?.VITE_API_ORIGIN || "";
+const apiOrigin = (import.meta as any).env?.VITE_API_ORIGIN || (import.meta as any).env?.VITE_API_PROXY || "http://localhost:8000";
 
 function normalizeOrigin(origin: string): string {
   if (!origin) return "";

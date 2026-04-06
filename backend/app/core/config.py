@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     # CORS & Hosts
     CORS_ORIGINS: List[str] = ["*"]
     TRUSTED_HOSTS: List[str] = ["*"]
+    ALLOWED_HOSTS: List[str] = ["*"]
     
     # Database
     MONGODB_URI: str = "mongodb://localhost:27017"
@@ -42,7 +43,7 @@ class Settings(BaseSettings):
     # AI Services
     OLLAMA_URL: str = "http://localhost:11434"
     # Default to a faster multilingual-friendly model; override in .env as needed
-    OLLAMA_MODEL: str = "qwen2:7b-instruct-q4_K_M"
+    OLLAMA_MODEL: str = "qwen2.5:1.5b"
     OLLAMA_TIMEOUT: int = 30
     # Generation options (tunable for latency/quality tradeoff)
     OLLAMA_NUM_PREDICT: int = 320
@@ -56,8 +57,8 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     
     # Rate Limiting
-    RATE_LIMIT_PER_MINUTE: int = 60
-    RATE_LIMIT_PER_HOUR: int = 1000
+    RATE_LIMIT_PER_MINUTE: int = 600
+    RATE_LIMIT_PER_HOUR: int = 5000
     ENABLE_RATE_LIMITING: bool = True
     
     # Logging

@@ -6,6 +6,7 @@ Custom exception classes and handlers
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import structlog
 
@@ -67,13 +68,13 @@ async def tarot_exception_handler(request: Request, exc: TarotException):
     
     return JSONResponse(
         status_code=exc.status_code,
-        content={
+        content=jsonable_encoder({
             "success": False,
             "error": exc.message,
             "details": exc.details,
             "path": str(request.url.path),
             "method": request.method
-        }
+        })
     )
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -87,7 +88,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={
+        content=jsonable_encoder({
             "success": False,
             "error": "Validation error",
             "details": {
@@ -96,7 +97,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             },
             "path": str(request.url.path),
             "method": request.method
-        }
+        })
     )
 
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
@@ -111,12 +112,12 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     
     return JSONResponse(
         status_code=exc.status_code,
-        content={
+        content=jsonable_encoder({
             "success": False,
             "error": exc.detail,
             "path": str(request.url.path),
             "method": request.method
-        }
+        })
     )
 
 async def general_exception_handler(request: Request, exc: Exception):
@@ -132,12 +133,12 @@ async def general_exception_handler(request: Request, exc: Exception):
     
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
+        content=jsonable_encoder({
             "success": False,
             "error": "Internal server error",
             "path": str(request.url.path),
             "method": request.method
-        }
+        })
     )
 
 def setup_exception_handlers(app: FastAPI):

@@ -17,7 +17,7 @@ def import_to_mongodb():
     collection = db["tarot_cards"]
     
     # Load JSON file
-    json_file = Path(__file__).parent / "tarot-cards.json"
+    json_file = Path(__file__).parent / "tarot-cards.vi.json"
     
     if not json_file.exists():
         print(f"❌ File not found: {json_file}")

@@ -2,14 +2,14 @@
 
 ## 🎯 **Bắt đầu nhanh trong 5 phút**
 
-Hướng dẫn cài đặt và chạy Tarot AI Reading System trên máy local của bạn.
+Hướng dẫn cài đặt và chạy Black Luna Tarot trên máy local của bạn.
 
 ## 📋 **Yêu cầu hệ thống**
 
 - **OS**: Windows 10+, macOS 10.15+, Ubuntu 18.04+
 - **Python**: 3.11+
 - **Node.js**: 18+
-- **RAM**: Tối thiểu 4GB (8GB khuyến nghị)
+- **RAM**: Tối thiểu 4GB (8GB khuyến nghị cho Ollama)
 - **Storage**: 2GB trống
 
 ## 🚀 **Cài đặt nhanh**
@@ -17,8 +17,8 @@ Hướng dẫn cài đặt và chạy Tarot AI Reading System trên máy local c
 ### **Bước 1: Clone dự án**
 
 ```bash
-git clone https://github.com/your-username/tarot-ai-system.git
-cd tarot-ai-system
+git clone https://github.com/xrl111/Black-Luna-Tarot.git
+cd Black-Luna-Tarot
 ```
 
 ### **Bước 2: Cài đặt Backend**
@@ -41,60 +41,76 @@ npm install
 # Backend
 cd ../backend
 cp .env.example .env
-# Chỉnh sửa .env với thông tin MongoDB
+# Chỉnh sửa .env với thông tin MongoDB và Ollama
 
-# Frontend
+# Frontend (nếu cần thay đổi API origin)
 cd ../frontend
-cp .env.example .env.local
-# Chỉnh sửa .env.local với URL backend
+# Tạo file .env với nội dung:
+# VITE_API_ORIGIN=http://localhost:8000
 ```
 
-### **Bước 5: Chạy dự án**
+### **Bước 5: Cài đặt Ollama (AI local)**
 
 ```bash
-# Terminal 1: Backend
+# Windows (PowerShell)
+irm https://ollama.com/install.ps1 | iex
+
+# macOS / Linux
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Tải model mặc định
+ollama pull qwen2.5:1.5b
+
+# Hoặc sử dụng model khác
+ollama pull llama3
+ollama pull mistral
+```
+
+### **Bước 6: Chạy dự án**
+
+```bash
+# Terminal 1: Ollama
+ollama serve
+
+# Terminal 2: Backend
 cd backend
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# Terminal 2: Frontend
+# Terminal 3: Frontend
 cd frontend
 npm run dev
-
-# Terminal 3: Ollama (nếu sử dụng local AI)
-ollama serve
 ```
 
 ## 🌐 **Truy cập ứng dụng**
 
-- **Frontend**: http://localhost:3000
+- **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+- **API Docs (Swagger)**: http://localhost:8000/docs
+- **API Docs (ReDoc)**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/health
+- **Health Check (Simple)**: http://localhost:8000/health/simple
 
 ## 🎴 **Sử dụng lần đầu**
 
 ### **1. Xem bói cơ bản**
 
-1. Mở http://localhost:3000
-2. Chọn "Xem bói 1 lá"
+1. Mở http://localhost:5173
+2. Chọn loại xem bói
 3. Nhập câu hỏi: "Tôi có nên thay đổi công việc không?"
 4. Nhấn "Xem bói"
-5. Đọc kết quả và đánh giá
+5. Đọc kết quả AI phân tích
 
-### **2. Xem bói nâng cao**
+### **2. Khám phá bài Tarot**
 
-1. Chọn "Xem bói 3 lá"
-2. Chọn spread: "Quá khứ - Hiện tại - Tương lai"
-3. Nhập câu hỏi chi tiết
-4. Chờ AI phân tích
-5. Đọc kết quả chi tiết
-
-### **3. Khám phá bài Tarot**
-
-1. Vào "Thư viện bài Tarot"
+1. Vào trang "Cards" (`/cards`)
 2. Tìm hiểu ý nghĩa từng lá bài
-3. Xem các spread khác nhau
-4. Đọc hướng dẫn xem bói
+3. Lọc theo suit: Wands, Cups, Swords, Pentacles, Major
+4. Xem chi tiết lá bài (`/cards/:id`)
+
+### **3. Trang Giới thiệu**
+
+1. Vào trang "About" (`/about`)
+2. Đọc hướng dẫn chi tiết về hệ thống
 
 ## 🔧 **Cấu hình nâng cao**
 
@@ -103,9 +119,9 @@ ollama serve
 #### **Option 1: MongoDB Atlas (Khuyến nghị)**
 
 1. Tạo tài khoản tại [MongoDB Atlas](https://cloud.mongodb.com)
-2. Tạo cluster miễn phí
+2. Tạo cluster miễn phí (M0)
 3. Lấy connection string
-4. Cập nhật `MONGODB_URI` trong `.env`
+4. Cập nhật `MONGODB_URI` trong `backend/.env`
 
 #### **Option 2: MongoDB Local**
 
@@ -122,23 +138,47 @@ brew install mongodb-community
 
 ### **AI Options**
 
-#### **Option 1: Groq API (Khuyến nghị)**
+#### **Option 1: Ollama Local (Khuyến nghị)**
+
+```bash
+# Cài đặt Ollama (xem Bước 5 ở trên)
+
+# Model mặc định (cấu hình trong backend/.env)
+OLLAMA_MODEL=qwen2.5:1.5b
+
+# Các model khác có thể sử dụng
+ollama pull llama3
+ollama pull mistral
+```
+
+#### **Option 2: Groq API (Fallback)**
 
 1. Đăng ký tại [Groq Console](https://console.groq.com)
 2. Lấy API key
-3. Cập nhật `GROQ_API_KEY` trong `.env`
+3. Cập nhật `GROQ_API_KEY` trong `backend/.env`
 
-#### **Option 2: Ollama Local**
+### **Backend Environment Variables**
+
+Các biến môi trường quan trọng trong `backend/.env`:
 
 ```bash
-# Cài đặt Ollama
-curl -fsSL https://ollama.ai/install.sh | sh
+# Database
+MONGODB_URI=mongodb://localhost:27017
+DATABASE_NAME=tarot_system
 
-# Tải model
-ollama pull llama3
+# AI
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5:1.5b
+OLLAMA_TIMEOUT=30
+GROQ_API_KEY=           # Optional fallback
 
-# Chạy Ollama
-ollama serve
+# Security
+SECRET_KEY=your-secret-key-at-least-32-characters
+ENVIRONMENT=development
+
+# Rate limiting
+RATE_LIMIT_PER_MINUTE=60
+RATE_LIMIT_PER_HOUR=1000
 ```
 
 ## 🧪 **Test nhanh**
@@ -149,25 +189,39 @@ ollama serve
 # Health check
 curl http://localhost:8000/health
 
+# Health check đơn giản
+curl http://localhost:8000/health/simple
+
+# Kiểm tra connections (MongoDB + Ollama)
+curl http://localhost:8000/api/v1/system/connections
+
 # Lấy danh sách bài Tarot
 curl http://localhost:8000/api/v1/tarot-cards
 
-# Tạo xem bói test
-curl -X POST http://localhost:8000/api/v1/readings \
+# Lấy bài Tarot theo suit
+curl http://localhost:8000/api/v1/tarot-cards/suit/major
+
+# Lấy bài ngẫu nhiên
+curl http://localhost:8000/api/v1/tarot-cards/random/3
+
+# Tạo AI reading
+curl -X POST http://localhost:8000/api/v1/ai/generate-reading \
   -H "Content-Type: application/json" \
   -d '{
     "question": "Test question",
-    "reading_type": "one_card",
-    "session_id": "test_session"
+    "cards": [{"name": "The Fool", "name_vi": "Kẻ Ngốc"}],
+    "reading_type": "general"
   }'
 ```
 
 ### **Test Frontend**
 
-1. Mở http://localhost:3000
-2. Kiểm tra tất cả trang load đúng
-3. Test chức năng xem bói
-4. Kiểm tra responsive trên mobile
+1. Mở http://localhost:5173
+2. Kiểm tra trang Home (`/`)
+3. Kiểm tra trang Cards (`/cards`)
+4. Kiểm tra trang Reading (`/reading`)
+5. Kiểm tra trang About (`/about`)
+6. Kiểm tra responsive trên mobile (F12 → Device toolbar)
 
 ## 🚨 **Troubleshooting**
 
@@ -202,12 +256,8 @@ npm install
 # Kiểm tra MongoDB
 mongosh "mongodb://localhost:27017"
 
-# Hoặc test connection string
-python -c "
-import motor.motor_asyncio
-client = motor.motor_asyncio.AsyncIOMotorClient('your-connection-string')
-print('Connection successful')
-"
+# Kiểm tra connection qua API
+curl http://localhost:8000/api/v1/system/connections/mongodb
 ```
 
 #### **4. Ollama không chạy**
@@ -219,8 +269,11 @@ ollama list
 # Restart Ollama
 ollama serve
 
+# Kiểm tra connection qua API
+curl http://localhost:8000/api/v1/system/connections/ollama
+
 # Test model
-ollama run llama3 "Hello, world!"
+ollama run qwen2.5:1.5b "Hello, world!"
 ```
 
 ### **Logs và Debug**
@@ -231,15 +284,15 @@ ollama run llama3 "Hello, world!"
 # Chạy với debug mode
 python -m uvicorn app.main:app --reload --log-level debug
 
-# Xem logs chi tiết
-tail -f logs/app.log
+# Backend sử dụng structlog với JSON format
+# Logs hiển thị trực tiếp trong console
 ```
 
 #### **Frontend Logs**
 
 ```bash
-# Chạy với debug mode
-npm run dev -- --debug
+# Chạy Vite dev server
+npm run dev
 
 # Xem console logs trong browser
 F12 → Console
@@ -253,9 +306,6 @@ F12 → Console
 # Sử dụng production server
 pip install gunicorn
 gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
-
-# Enable caching
-pip install redis
 ```
 
 ### **Frontend Optimization**
@@ -263,19 +313,18 @@ pip install redis
 ```bash
 # Build production
 npm run build
-npm start
 
-# Enable compression
-npm install compression
+# Preview production build
+npm run preview
 ```
 
 ## 🔒 **Security Checklist**
 
 - [ ] Đổi `SECRET_KEY` mặc định
-- [ ] Cấu hình CORS đúng domain
-- [ ] Bật rate limiting
-- [ ] Validate input data
+- [ ] Cấu hình CORS đúng domain (trong `backend/app/core/config.py`)
+- [ ] Bật rate limiting (`ENABLE_RATE_LIMITING=true`)
 - [ ] Sử dụng HTTPS (production)
+- [ ] Set `ENVIRONMENT=production` khi deploy
 
 ## 📚 **Tài liệu tham khảo**
 
@@ -283,37 +332,11 @@ npm install compression
 - [Database Schema](./DATABASE.md)
 - [Deployment Guide](./DEPLOYMENT.md)
 - [FastAPI Docs](https://fastapi.tiangolo.com)
-- [Next.js Docs](https://nextjs.org/docs)
+- [Vite Docs](https://vitejs.dev)
+- [React Docs](https://react.dev)
 - [MongoDB Docs](https://docs.mongodb.com)
-
-## 🆘 **Hỗ trợ**
-
-### **Community Support**
-
-- [GitHub Issues](https://github.com/your-username/tarot-ai-system/issues)
-- [Discord Server](https://discord.gg/your-community)
-- [Stack Overflow](https://stackoverflow.com)
-
-### **Professional Support**
-
-- Email: support@your-domain.com
-- Documentation: https://docs.your-domain.com
-- Status Page: https://status.your-domain.com
-
-## 🎉 **Chúc mừng!**
-
-Bạn đã thành công cài đặt và chạy Tarot AI Reading System!
-
-**Bước tiếp theo:**
-
-1. Khám phá các tính năng
-2. Tùy chỉnh giao diện
-3. Thêm dữ liệu bài Tarot
-4. Deploy lên production
-5. Chia sẻ với cộng đồng
+- [Ollama Docs](https://ollama.ai)
 
 ---
 
-**⭐ Nếu hướng dẫn này hữu ích, hãy cho chúng tôi một ngôi sao trên GitHub!**
-
-
+**🎉 Chúc mừng! Bạn đã sẵn sàng sử dụng Black Luna Tarot!**

@@ -120,14 +120,7 @@ def create_application() -> FastAPI:
         ]
     )
 
-    # Setup CORS
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+
 
     # Setup Trusted Host middleware
     app.add_middleware(
@@ -159,6 +152,15 @@ def create_application() -> FastAPI:
 
     # Setup exception handlers
     setup_exception_handlers(app)
+
+    # Setup CORS (MUST BE LAST to be outermost middleware and handle CORS for early returns like 429)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     # Include API router
     app.include_router(api_router, prefix=settings.API_V1_STR)

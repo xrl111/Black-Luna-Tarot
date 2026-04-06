@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Sparkles, Shuffle, Save, Eye } from "lucide-react";
+import { Sparkles, Shuffle, Save, Eye, Settings, Wand2, Image as ImageIcon } from "lucide-react";
+import { LLMSettingsModal } from "@/components/LLMSettingsModal";
 import SEO from "@/components/SEO";
+import TarotMarkdownViewer from "@/components/TarotMarkdownViewer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,6 +61,9 @@ const Reading = () => {
   const [drawnCards, setDrawnCards] = useState<TarotCard[]>([]);
   const [selectionLocked, setSelectionLocked] = useState<boolean>(false);
   const [shuffledDeck, setShuffledDeck] = useState<TarotCard[]>([]);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [intakeResult, setIntakeResult] = useState<{name: string, reason: string} | null>(null);
+  const [isIntaking, setIsIntaking] = useState(false);
   const resultRef = useRef<HTMLDivElement | null>(null);
   const readingRef = useRef<HTMLDivElement | null>(null);
   const [streamingText, setStreamingText] = useState("");
@@ -134,7 +139,6 @@ const Reading = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question: data.question,
-          // Send detailed info including orientation and order
           cards: data.cards.map((c) => ({
             ...c,
             is_reversed: !!c.is_reversed,
@@ -142,11 +146,11 @@ const Reading = () => {
           })),
           reading_type: readingType,
           reading_detail: "quick",
+          llm_config: (() => { try { return JSON.parse(localStorage.getItem("tarot_llm_config") || ""); } catch { return undefined; } })()
         }),
         signal: controller.signal,
       });
       if (!res.ok) {
-        // Fallback to non-streaming
         const response = await axiosClient.post(
           apiUrl("/api/v1/ai/generate-reading"),
           {
@@ -158,6 +162,7 @@ const Reading = () => {
             })),
             reading_type: readingType,
             reading_detail: "quick",
+            llm_config: (() => { try { return JSON.parse(localStorage.getItem("tarot_llm_config") || ""); } catch { return undefined; } })()
           },
           { headers: { "Content-Type": "application/json" }, timeout: 120000 }
         );
@@ -350,8 +355,32 @@ const Reading = () => {
     { value: "10", label: "10 lá bài - Celtic Cross (Đầy đủ)" },
   ];
 
+  const handleIntake = async () => {
+    if (!question.trim()) {
+      alert("Vui lòng nhập câu hỏi trước khi phân tích.");
+      return;
+    }
+    setIsIntaking(true);
+    try {
+      const res = await axiosClient.post(apiUrl('/api/v1/ai/intake'), { question });
+      if (res.data && res.data.recommended_spread) {
+        setReadingType(String(res.data.recommended_spread.card_count));
+        setIntakeResult({
+          name: res.data.recommended_spread.name,
+          reason: res.data.reason
+        });
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi khi phân tích câu hỏi. Bạn vẫn có thể chọn trải bài thủ công.");
+    } finally {
+      setIsIntaking(false);
+    }
+  };
+
   return (
     <>
+      <LLMSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <SEO
         title="Xem bói Tarot - Black Luna Tarot"
         description="Đặt câu hỏi, chọn bài thủ công hoặc tự động, tuỳ chỉnh thứ tự và xuôi/ngược. AI streaming bằng tiếng Việt."
@@ -365,7 +394,16 @@ const Reading = () => {
         className="space-y-8"
       >
         {/* Header */}
-        <div className="text-center space-y-4">
+        <div className="relative text-center space-y-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute right-0 top-0 rounded-full hover:bg-muted"
+            onClick={() => setIsSettingsOpen(true)}
+            title="Cấu hình AI (Oracle Engine)"
+          >
+            <Settings className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />
+          </Button>
           <h1 className="text-4xl font-cinzel font-bold text-gradient">
             Xem bói Tarot
           </h1>
@@ -406,11 +444,27 @@ const Reading = () => {
                 }}
                 rows={3}
               />
+              <Button onClick={handleIntake} disabled={isIntaking || !question.trim()} variant="secondary" className="w-full mt-2">
+                <Wand2 className="mr-2 h-4 w-4 text-purple-500" />
+                {isIntaking ? "Đang phân tích ý định..." : "Phân tích câu hỏi & Gọi ý trải bài (AutoHarness)"}
+              </Button>
             </div>
+
+            {intakeResult && (
+              <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 p-4 rounded-lg">
+                <p className="text-sm font-medium text-purple-800 dark:text-purple-300 mb-1 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" /> Hệ thống AutoHarness đã kích hoạt
+                </p>
+                <p className="text-xs text-purple-700 dark:text-purple-400">
+                  Phân tích: {intakeResult.reason}<br/>
+                  Đề xuất: <strong>{intakeResult.name}</strong> ({readingType} lá)
+                </p>
+              </motion.div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="reading-type" className="text-sm font-medium">
-                Kiểu trải bài
+                Thiết lập kiểu trải bài {intakeResult ? "(Đã gợi ý)" : "(Thủ công)"}
               </Label>
               <Select value={readingType} onValueChange={setReadingType}>
                 <SelectTrigger className="tarot-select-trigger h-11">
@@ -517,7 +571,7 @@ const Reading = () => {
                       const reachedLimit =
                         selectedCards.length >= targetCount && !isSelected;
                       const imageUrl = card.image_url
-                        ? `/api/v1/tarot-cards/image/${card.id}`
+                        ? apiUrl(`/api/v1/tarot-cards/image/${card.id}`)
                         : undefined;
                       return (
                         <button
@@ -567,7 +621,7 @@ const Reading = () => {
                                 }}
                               />
                             ) : (
-                              <span className="text-2xl">🃏</span>
+                              <ImageIcon className="w-8 h-8 text-muted-foreground/50" />
                             )}
                           </div>
                           <div className="absolute inset-0 pointer-events-none border border-border/60 rounded-md" />
@@ -603,7 +657,7 @@ const Reading = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 {drawnCards.map((card, index) => {
                   const imageUrl = card.image_url
-                    ? `/api/v1/tarot-cards/image/${card.id}`
+                    ? apiUrl(`/api/v1/tarot-cards/image/${card.id}`)
                     : null;
 
                   return (
@@ -642,7 +696,7 @@ const Reading = () => {
                                 imageUrl ? "hidden" : ""
                               }`}
                             >
-                              <span className="text-2xl">🃏</span>
+                              <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
                             </div>
                           </div>
                           <CardTitle className="text-sm font-cinzel">
@@ -742,10 +796,8 @@ const Reading = () => {
 
                 <div>
                   <h4 className="font-semibold mb-2">Giải thích:</h4>
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <p className="whitespace-pre-wrap leading-relaxed">
-                      {streamingText || readingResult?.ai_response || ""}
-                    </p>
+                  <div className="bg-mystic-50/30 dark:bg-mystic-900/10 rounded-xl p-4 sm:p-6 shadow-inner border border-mystic-200/50 dark:border-mystic-800/50">
+                    <TarotMarkdownViewer content={streamingText || readingResult?.ai_response || ""} />
                   </div>
                   {(isStreaming || isGenerating) && (
                     <p className="text-xs text-muted-foreground mt-2">

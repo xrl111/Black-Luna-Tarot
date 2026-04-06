@@ -1,4 +1,5 @@
 import React from "react";
+import { Sparkles, BookOpen, PenTool, Bot, Sliders, Palette, CreditCard } from "lucide-react";
 import { TarotSelect, TarotSelectItem } from "@/components/ui/select-variants";
 import {
   EnhancedSelect,
@@ -12,7 +13,9 @@ const FontShowcase: React.FC = () => {
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Main Title */}
         <div className="text-center space-y-4">
-          <h1 className="tarot-title mystical-glow">🔮 Hệ thống Tarot AI</h1>
+          <h1 className="tarot-title mystical-glow flex items-center justify-center gap-3">
+            <Sparkles className="w-8 h-8 text-primary" /> Hệ thống Tarot AI
+          </h1>
           <p className="tarot-subtitle text-mystic-600 dark:text-mystic-400">
             Khám phá tương lai qua trí tuệ nhân tạo
           </p>
@@ -22,8 +25,8 @@ const FontShowcase: React.FC = () => {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Headings & Display Fonts */}
           <div className="glass-effect p-6 rounded-xl space-y-4">
-            <h2 className="text-2xl font-bold text-gold-600 mb-4">
-              📚 Font Headings
+            <h2 className="text-2xl font-bold text-gold-600 mb-4 flex items-center gap-2">
+              <BookOpen className="w-6 h-6" /> Font Headings
             </h2>
 
             <div className="space-y-3">
@@ -55,8 +58,8 @@ const FontShowcase: React.FC = () => {
                 <p className="text-sm text-muted-foreground">
                   Cinzel Decorative - Ornamental
                 </p>
-                <h3 className="font-decorative text-xl golden-text">
-                  ✨ MA THUẬT CỔ ĐẠI ✨
+                <h3 className="font-decorative text-xl golden-text flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" /> MA THUẬT CỔ ĐẠI <Sparkles className="w-5 h-5" />
                 </h3>
               </div>
             </div>
@@ -64,8 +67,8 @@ const FontShowcase: React.FC = () => {
 
           {/* Body Text Fonts */}
           <div className="glass-effect p-6 rounded-xl space-y-4">
-            <h2 className="text-2xl font-bold text-mystic-600 mb-4">
-              📝 Font Body Text
+            <h2 className="text-2xl font-bold text-mystic-600 mb-4 flex items-center gap-2">
+              <PenTool className="w-6 h-6" /> Font Body Text
             </h2>
 
             <div className="space-y-4">
@@ -97,7 +100,9 @@ const FontShowcase: React.FC = () => {
 
         {/* Card Examples */}
         <div className="space-y-6">
-          <h2 className="tarot-subtitle text-center">🃏 Ví dụ về Thẻ Tarot</h2>
+          <h2 className="tarot-subtitle text-center flex items-center justify-center gap-2">
+            <CreditCard className="w-6 h-6" /> Ví dụ về Thẻ Tarot
+          </h2>
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* Major Arcana Card */}
@@ -106,7 +111,7 @@ const FontShowcase: React.FC = () => {
                 <h3 className="tarot-card-title text-gold-600">
                   The Fool - Kẻ Ngốc
                 </h3>
-                <div className="text-6xl">🃏</div>
+                <div className="flex justify-center text-muted-foreground/30"><CreditCard className="w-16 h-16" /></div>
                 <p className="tarot-card-text vietnamese-optimized">
                   Khởi đầu mới, cuộc phiêu lưu, sự ngây thơ và tiềm năng vô hạn.
                   Đây là lúc để tin tương vào bản thân và bước vào hành trình
@@ -124,7 +129,7 @@ const FontShowcase: React.FC = () => {
                 <h3 className="tarot-card-title text-mystic-600">
                   Ace of Cups - Át Cốc
                 </h3>
-                <div className="text-6xl">🏆</div>
+                <div className="flex justify-center text-muted-foreground/30"><CreditCard className="w-16 h-16" /></div>
                 <p className="tarot-card-text vietnamese-optimized">
                   Tình yêu mới, cảm xúc tích cực, sự khởi đầu trong các mối quan
                   hệ. Trái tim bạn đang mở ra để đón nhận những điều tốt đẹp.
@@ -141,7 +146,7 @@ const FontShowcase: React.FC = () => {
                 <h3 className="tarot-card-title text-gold-600">
                   Queen of Wands - Nữ hoàng Gậy
                 </h3>
-                <div className="text-6xl">👑</div>
+                <div className="flex justify-center text-muted-foreground/30"><CreditCard className="w-16 h-16" /></div>
                 <p className="tarot-card-text vietnamese-optimized">
                   Sự tự tin, lãnh đạo, và năng lượng sáng tạo mạnh mẽ. Bạn có
                   khả năng truyền cảm hứng và dẫn dắt người khác.
@@ -156,8 +161,8 @@ const FontShowcase: React.FC = () => {
 
         {/* AI Reading Example */}
         <div className="glass-effect p-8 rounded-xl">
-          <h2 className="tarot-subtitle text-center mb-6 text-mystic-600">
-            🤖 Ví dụ Giải Thích AI
+          <h2 className="tarot-subtitle text-center mb-6 text-mystic-600 flex items-center justify-center gap-2">
+            <Bot className="w-6 h-6" /> Ví dụ Giải Thích AI
           </h2>
 
           <div className="tarot-reading-text vietnamese-optimized space-y-4 max-w-3xl mx-auto">
@@ -198,8 +203,8 @@ const FontShowcase: React.FC = () => {
 
         {/* Select Component Showcase */}
         <div className="space-y-6">
-          <h2 className="tarot-subtitle text-center">
-            🎛️ Enhanced Select Components
+          <h2 className="tarot-subtitle text-center flex items-center justify-center gap-2">
+            <Sliders className="w-6 h-6" /> Enhanced Select Components
           </h2>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -246,10 +251,10 @@ const FontShowcase: React.FC = () => {
                 placeholder="Chọn nguyên tố"
                 options={[
                   { value: "all", label: "Tất cả nguyên tố" },
-                  { value: "fire", label: "🔥 Lửa (Fire)" },
-                  { value: "water", label: "🌊 Nước (Water)" },
-                  { value: "air", label: "💨 Khí (Air)" },
-                  { value: "earth", label: "🌍 Đất (Earth)" },
+                  { value: "fire", label: "Lửa (Fire)" },
+                  { value: "water", label: "Nước (Water)" },
+                  { value: "air", label: "Khí (Air)" },
+                  { value: "earth", label: "Đất (Earth)" },
                 ]}
               />
             </div>
@@ -266,10 +271,10 @@ const FontShowcase: React.FC = () => {
                 placeholder="Chọn difficulty"
                 variant="enhanced"
                 options={[
-                  { value: "beginner", label: "🌱 Người mới bắt đầu" },
-                  { value: "intermediate", label: "⭐ Trung cấp" },
-                  { value: "advanced", label: "🔥 Nâng cao" },
-                  { value: "expert", label: "👑 Chuyên gia" },
+                  { value: "beginner", label: "Người mới bắt đầu" },
+                  { value: "intermediate", label: "Trung cấp" },
+                  { value: "advanced", label: "Nâng cao" },
+                  { value: "expert", label: "Chuyên gia" },
                 ]}
               />
             </div>
@@ -282,9 +287,9 @@ const FontShowcase: React.FC = () => {
               <TarotCardSelect
                 placeholder="Chọn arcana"
                 options={[
-                  { value: "major", label: "🌟 Major Arcana" },
-                  { value: "minor", label: "🎴 Minor Arcana" },
-                  { value: "court", label: "👤 Court Cards" },
+                  { value: "major", label: "Major Arcana" },
+                  { value: "minor", label: "Minor Arcana" },
+                  { value: "court", label: "Court Cards" },
                 ]}
               />
             </div>
@@ -315,8 +320,8 @@ const FontShowcase: React.FC = () => {
 
         {/* Typography Reference */}
         <div className="text-center text-sm text-muted-foreground space-y-2">
-          <p>
-            🎨 <strong>Font Stack:</strong> Vietnamese-optimized với fallback hỗ
+          <p className="flex items-center justify-center gap-2">
+            <Palette className="w-4 h-4" /> <strong>Font Stack:</strong> Vietnamese-optimized với fallback hỗ
             trợ
           </p>
           <p className="font-mono text-xs">

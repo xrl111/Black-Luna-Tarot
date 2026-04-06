@@ -32,22 +32,26 @@ class AIService:
         cards_drawn: List[Dict[str, Any]],
         reading_type: str = "general",
         detail: Optional[str] = None,
+        llm_config: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Generate a tarot reading using AI
         """
         try:
             # Prepare the prompt
-            # Default to quick mode for latency unless overridden by caller
             prompt = self._build_tarot_prompt(
                 question, cards_drawn, reading_type, detail=detail or "quick"
             )
             
-            # Generate response using Ollama
-            response = await self._call_ollama(prompt)
+            used_model = self.ollama_model
+            if llm_config and llm_config.get("api_key"):
+                response = await self._call_external_llm(prompt, llm_config)
+                used_model = llm_config.get("model", "external-llm")
+            else:
+                response = await self._call_ollama(prompt)
             
             # Process and structure the response
-            structured_response = self._process_ai_response(response, cards_drawn)
+            structured_response = self._process_ai_response(response, cards_drawn, used_model)
             
             logger.info("Generated tarot reading", 
                        question=question, 
@@ -134,7 +138,12 @@ class AIService:
                 return 0
         sorted_cards = sorted(cards, key=_order_key)
 
-        for i, card in enumerate(sorted_cards, 1):
+        from app.services.tarot_engine import TarotLogicEngine
+        engine = TarotLogicEngine()
+        processed_cards = engine.process_reversals_and_context(sorted_cards)
+        occult_context = engine.build_system_context(processed_cards)
+
+        for i, card in enumerate(processed_cards, 1):
             position_vi = spread_positions[i - 1] if i - 1 < len(spread_positions) else None
             if is_quick:
                 compact_cards.append({
@@ -145,8 +154,8 @@ class AIService:
                     "name_vi": card.get("name_vi"),
                     "is_reversed": bool(card.get("is_reversed", False)),
                     "order_index": card.get("order_index", i),
-                    "meaning_upright": card.get("meaning_upright_vi") or card.get("meaning_upright"),
-                    "meaning_reversed": card.get("meaning_reversed_vi") or card.get("meaning_reversed"),
+                    "energy_state": card.get("energy_state"),
+                    "active_meaning": card.get("active_meaning"),
                     "keywords": card.get("keywords_vi") or card.get("keywords"),
                 })
             else:
@@ -162,12 +171,9 @@ class AIService:
                     "keywords": card.get("keywords_vi") or card.get("keywords"),
                     "meanings_light": card.get("meanings_light"),
                     "meanings_shadow": card.get("meanings_shadow"),
-                    "meaning_upright": card.get("meaning_upright_vi") or card.get("meaning_upright"),
-                    "meaning_reversed": card.get("meaning_reversed_vi") or card.get("meaning_reversed"),
-                    "element": card.get("element") or card.get("elemental"),
-                    "fortune_telling": card.get("fortune_telling"),
                     "questions_to_ask": card.get("questions_to_ask"),
-                    "is_reversed": bool(card.get("is_reversed", False)),
+                    "energy_state": card.get("energy_state"),
+                    "active_meaning": card.get("active_meaning"),
                     "order_index": card.get("order_index", i),
                 })
         cards_text = _json.dumps(compact_cards, ensure_ascii=False, indent=2)
@@ -188,6 +194,7 @@ CÁC LÁ BÀI ĐÃ RÚT (JSON):
 SƠ ĐỒ VỊ TRÍ (nếu áp dụng):
 {spread_guide}
 
+{occult_context}
 YÊU CẦU:
 - Diễn giải từng lá (ý nghĩa chính, ánh sáng/bóng tối, liên hệ với câu hỏi)
 - Với trải bài có vị trí: nêu rõ ý nghĩa từng lá theo đúng vị trí đã gán (position_vi)
@@ -323,11 +330,17 @@ LƯU Ý:
         cards_drawn: List[Dict[str, Any]],
         reading_type: str = "general",
         detail: Optional[str] = None,
+        llm_config: Optional[Dict[str, Any]] = None,
     ):
-        """Stream AI reading text chunks from Ollama (yields plain text)."""
+        """Stream AI reading text chunks from Ollama or External LLM."""
         prompt = self._build_tarot_prompt(
             question, cards_drawn, reading_type, detail=detail or "quick"
         )
+
+        if llm_config and llm_config.get("api_key"):
+            async for chunk in self._stream_external_llm(prompt, llm_config):
+                yield chunk
+            return
 
         url = f"{self.ollama_url}/api/generate"
         payload = {
@@ -403,8 +416,109 @@ LƯU Ý:
         except Exception as e:
             logger.error("Failed streaming from Ollama", error=str(e))
             raise AIServiceException("Failed to stream AI response", details={"error": str(e)})
+
+    async def _call_external_llm(self, prompt: str, llm_config: Dict[str, Any]) -> str:
+        provider = llm_config.get("provider", "").lower()
+        api_key = llm_config.get("api_key")
+        model = llm_config.get("model")
+
+        if provider == "openai":
+            url = "https://api.openai.com/v1/chat/completions"
+        elif provider == "groq":
+            url = "https://api.groq.com/openai/v1/chat/completions"
+        elif provider == "gemini":
+            url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+        else:
+            raise AIServiceException("Unsupported LLM provider", details={"provider": provider})
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": "Bạn là một Tarot Reader chuyên nghiệp. Hãy trả lời BẰNG TIẾNG VIỆT, văn phong ấm áp, thấu cảm và sâu sắc. Trả lời trực tiếp vào vấn đề."},
+                {"role": "user", "content": prompt}
+            ],
+            "stream": False,
+            "temperature": 0.7
+        }
+        
+        timeout = httpx.Timeout(60.0)
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.post(url, headers=headers, json=payload)
+                if response.status_code == 200:
+                    data = response.json()
+                    return data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                else:
+                    logger.error("External LLM API error", status=response.status_code, body=response.text)
+                    raise AIServiceException("External LLM API error")
+        except Exception as e:
+            logger.error("Failed to call External LLM", error=str(e))
+            raise AIServiceException("Failed to call external AI service")
+        return ""
+
+    async def _stream_external_llm(self, prompt: str, llm_config: Dict[str, Any]):
+        provider = llm_config.get("provider", "").lower()
+        api_key = llm_config.get("api_key")
+        model = llm_config.get("model")
+
+        if provider == "openai":
+            url = "https://api.openai.com/v1/chat/completions"
+        elif provider == "groq":
+            url = "https://api.groq.com/openai/v1/chat/completions"
+        elif provider == "gemini":
+            url = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+        else:
+            raise AIServiceException("Unsupported LLM provider", details={"provider": provider})
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": "Bạn là một Tarot Reader chuyên nghiệp. Hãy trả lời BẰNG TIẾNG VIỆT, văn phong ấm áp, thấu cảm và sâu sắc. Trả lời trực tiếp vào vấn đề."},
+                {"role": "user", "content": prompt}
+            ],
+            "stream": True,
+            "temperature": 0.7
+        }
+        
+        timeout = httpx.Timeout(120.0)
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                async with client.stream("POST", url, headers=headers, json=payload) as response:
+                    if response.status_code != 200:
+                        text = await response.aread()
+                        logger.error("External LLM stream error", body=text)
+                        raise AIServiceException("External LLM API stream error")
+
+                    async for line in response.aiter_lines():
+                        if isinstance(line, bytes):
+                            try:
+                                line = line.decode("utf-8", errors="ignore")
+                            except Exception:
+                                pass
+                        if isinstance(line, str) and line.startswith("data:"):
+                            data_str = line[5:].strip()
+                            if data_str == "[DONE]":
+                                break
+                            try:
+                                data = json.loads(data_str)
+                                content = data.get("choices", [{}])[0].get("delta", {}).get("content")
+                                if content:
+                                    yield content
+                            except Exception:
+                                pass
+        except Exception as e:
+            logger.error("Failed external LLM stream", error=str(e))
+            raise AIServiceException("Failed to stream external AI service")
     
-    def _process_ai_response(self, response: str, cards: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _process_ai_response(self, response: str, cards: List[Dict[str, Any]], model_used: Optional[str] = None) -> Dict[str, Any]:
         """
         Process and structure the AI response
         """
@@ -415,7 +529,7 @@ LƯU Ý:
             "ai_advice": self._extract_advice(response),
             "cards_interpreted": len(cards),
             "response_length": len(response),
-            "model_used": self.ollama_model,
+            "model_used": model_used or self.ollama_model,
             "generated_at": datetime.utcnow().isoformat()
         }
     

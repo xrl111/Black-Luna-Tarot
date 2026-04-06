@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, Square, Eye, BookOpen } from "lucide-react";
+import { Sparkles, Square, Eye, BookOpen, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
 import {
@@ -162,8 +162,8 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
             <Card className="text-center">
               <CardHeader>
-                <CardTitle className="text-green-600">
-                  ✅ Tarot Cards API
+                <CardTitle className="text-green-600 flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-5 h-5" /> Tarot Cards API
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -174,8 +174,8 @@ const Home = () => {
             </Card>
             <Card className="text-center">
               <CardHeader>
-                <CardTitle className="text-green-600">
-                  ✅ Readings API
+                <CardTitle className="text-green-600 flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-5 h-5" /> Readings API
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -186,8 +186,8 @@ const Home = () => {
             </Card>
             <Card className="text-center">
               <CardHeader>
-                <CardTitle className="text-green-600">
-                  ✅ AI Service API
+                <CardTitle className="text-green-600 flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-5 h-5" /> AI Service API
                 </CardTitle>
               </CardHeader>
               <CardContent>
