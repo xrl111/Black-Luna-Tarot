@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Sparkles, Shuffle, Save, Eye, Settings, Wand2, Image as ImageIcon } from "lucide-react";
 import { LLMSettingsModal } from "@/components/LLMSettingsModal";
 import SEO from "@/components/SEO";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import TarotMarkdownViewer from "@/components/TarotMarkdownViewer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -56,6 +58,7 @@ const Reading = () => {
   const [readingResult, setReadingResult] = useState<ReadingResult | null>(
     null
   );
+  const { user } = useAuth();
   const [drawMode, setDrawMode] = useState<"auto" | "manual">("auto");
   const [selectedCards, setSelectedCards] = useState<TarotCard[]>([]);
   const [drawnCards, setDrawnCards] = useState<TarotCard[]>([]);
@@ -203,12 +206,29 @@ const Reading = () => {
       });
       setIsGenerating(false);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Error generating reading:", error);
+      
+      const isRateLimit = error?.response?.status === 429;
+      const errorMsg = isRateLimit 
+          ? "Bạn đã dùng hết hạn mức đọc bài cho phép ngày hôm nay!" 
+          : "Có lỗi xảy ra khi tạo giải thích. Vui lòng thử lại.";
+      
+      if (isRateLimit && !user) {
+        toast.error("Hết lượt dùng thử!", {
+          description: "Hãy đăng nhập để nhận thêm 20 lượt đọc mỗi ngày và trải nghiệm cá nhân hóa.",
+          duration: 6000
+        });
+      } else if (isRateLimit) {
+        toast.error("Đã đạt giới hạn hôm nay", {
+          description: "Tài khoản của bạn đã đạt giới hạn 20 lượt/ngày. Vui lòng quay lại vào ngày mai!"
+        });
+      }
+
       setReadingResult({
         question,
         cards: drawnCards || [],
-        ai_response: "Có lỗi xảy ra khi tạo giải thích. Vui lòng thử lại.",
+        ai_response: errorMsg,
         session_id: `session_${Date.now()}`,
       });
       setIsGenerating(false);
@@ -399,10 +419,18 @@ const Reading = () => {
             variant="ghost" 
             size="icon" 
             className="absolute right-0 top-0 rounded-full hover:bg-muted"
-            onClick={() => setIsSettingsOpen(true)}
-            title="Cấu hình AI (Oracle Engine)"
+            onClick={() => {
+              if (!user) {
+                toast.info("Tính năng giới hạn", {
+                  description: "Bạn cần Đăng Nhập để tùy chỉnh AI Oracle Engine và Persona."
+                });
+                return;
+              }
+              setIsSettingsOpen(true)
+            }}
+            title="Cấu hình AI (Oracle Engine) - Yêu cầu Đăng Nhập"
           >
-            <Settings className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />
+            <Settings className={`w-6 h-6 transition-colors ${!user ? 'text-muted-foreground/40' : 'text-muted-foreground hover:text-primary'}`} />
           </Button>
           <h1 className="text-4xl font-cinzel font-bold text-gradient">
             Xem bói Tarot
@@ -410,6 +438,11 @@ const Reading = () => {
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Đặt câu hỏi và rút lá bài để nhận giải thích từ AI thông minh
           </p>
+          {!user && (
+            <div className="inline-block mt-2 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-3 py-1 rounded-full text-xs font-medium">
+              Chế độ Khách (Guest mode): Tối đa 3 lượt/ngày
+            </div>
+          )}
         </div>
 
         {/* Question Input */}
