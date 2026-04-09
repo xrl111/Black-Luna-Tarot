@@ -214,6 +214,9 @@ class UserLogin(BaseModel):
     email: EmailStr = Field(..., description="User email")
     password: str = Field(..., description="User password")
 
+class GoogleAuthPayload(BaseModel):
+    id_token: str = Field(..., description="Google ID Token from frontend")
+
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     avatar_url: Optional[str] = None
@@ -315,8 +318,8 @@ class Reading(BaseDocument):
     reading_spread: str = Field(..., description="Spread used")
     
     # Enhanced question analysis for training
-    question_category: str = Field(..., description="Question category (career, love, health, etc.)")
-    question_complexity: str = Field(..., description="Question complexity (simple, medium, complex)")
+    question_category: str = Field(default="general", description="Question category (career, love, health, etc.)")
+    question_complexity: str = Field(default="medium", description="Question complexity (simple, medium, complex)")
     question_emotion: Optional[str] = Field(None, description="Emotion detected in question")
     question_context: Optional[str] = Field(None, description="Additional context about the question")
     question_urgency: str = Field(default="medium", description="Question urgency level")
@@ -331,8 +334,8 @@ class Reading(BaseDocument):
     
     # Enhanced AI response analysis
     ai_response_sections: Dict[str, str] = Field(default_factory=dict, description="Structured response sections")
-    ai_response_tone: str = Field(..., description="Response tone (supportive, analytical, spiritual)")
-    ai_response_complexity: str = Field(..., description="Response complexity level")
+    ai_response_tone: str = Field(default="neutral", description="Response tone (supportive, analytical, spiritual)")
+    ai_response_complexity: str = Field(default="medium", description="Response complexity level")
     ai_actionable_advice: bool = Field(default=True, description="Whether advice is actionable")
     ai_emotional_support: bool = Field(default=True, description="Whether emotional support provided")
     

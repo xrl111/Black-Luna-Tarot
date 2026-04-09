@@ -35,10 +35,15 @@ class Settings(BaseSettings):
     MONGODB_URI: str = "mongodb://localhost:27017"
     DATABASE_NAME: str = "tarot_system"
     
-    # Security
+    # Security & Auth
     SECRET_KEY: str = "your-super-secret-key-for-tarot-system-development-only-change-in-production"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    
+    # Advanced Rate Limiting Limits
+    GUEST_DAILY_LIMIT: int = 3
+    ACCOUNT_DAILY_LIMIT: int = 20
     
     # AI Services
     OLLAMA_URL: str = "http://localhost:11434"
@@ -81,6 +86,12 @@ class Settings(BaseSettings):
     # External Services
     SENTRY_DSN: Optional[str] = None
     REDIS_URL: Optional[str] = None
+    
+    # Kafka (Big Data Pipeline)
+    KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9094"
+    KAFKA_TOPIC_READINGS: str = "tarot-events"
+    KAFKA_ENABLED: bool = False
+    KAFKA_PRODUCER_TIMEOUT: int = 10
     
     # Feature Flags
     ENABLE_USER_REGISTRATION: bool = True

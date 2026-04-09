@@ -9,6 +9,7 @@ import structlog
 from datetime import datetime
 
 from app.database.models import Reading, ReadingCreate, ReadingUpdate, ReadingResponse
+from app.core.config import settings
 
 logger = structlog.get_logger()
 
@@ -30,6 +31,23 @@ class ReadingService:
             reading.id = result.inserted_id
             
             logger.info("Created new reading", reading_id=str(reading.id))
+            
+            # ── Big Data Pipeline: Emit event to Kafka ──
+            # Fires AFTER MongoDB insert succeeds.
+            # Wrapped in try/except so Kafka failures NEVER break reading saves.
+            if settings.KAFKA_ENABLED:
+                try:
+                    from app.services.kafka_producer import get_kafka_producer
+                    producer = get_kafka_producer()
+                    await producer.emit_reading_event(reading)
+                except Exception as kafka_err:
+                    logger.warning(
+                        "⚠️ Kafka event emission failed (non-blocking)",
+                        reading_id=str(reading.id),
+                        error=str(kafka_err),
+                    )
+            # ── End Big Data Pipeline ──
+            
             return reading
             
         except Exception as e:

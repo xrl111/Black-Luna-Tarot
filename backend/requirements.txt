@@ -19,6 +19,9 @@ python-multipart==0.0.6
 # HTTP client for external API calls
 httpx==0.25.2
 
+# Kafka producer for Big Data pipeline
+aiokafka>=0.10.0
+
 # Logging
 structlog==23.2.0
 

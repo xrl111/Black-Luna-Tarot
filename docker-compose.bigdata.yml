@@ -1,0 +1,311 @@
+# ============================================================================
+# 🎯 Black Luna Tarot — Big Data Pipeline Infrastructure
+# ============================================================================
+# Kiến trúc: Kafka (KRaft) → Spark → HDFS → Hive
+# Nguồn dữ liệu: MongoDB (App Producer) + PostgreSQL (Debezium CDC)
+# ============================================================================
+
+services:
+
+  # ==========================================================================
+  # 🚀 KAFKA — Message Broker (KRaft mode, không cần Zookeeper)
+  # ==========================================================================
+  # Vai trò: Trạm trung chuyển sự kiện giữa App và Spark.
+  # - Topic 'tarot-events': nhận event reading từ FastAPI backend
+  # - Topic 'dbserver1.public.users': nhận CDC event từ Debezium
+  kafka:
+    image: bitnamilegacy/kafka:3.7
+    container_name: kafka
+    ports:
+      - "9092:9092"     # Cho Docker internal (Spark, Debezium, etc.)
+      - "9094:9094"     # Cho host machine (FastAPI backend trên Windows)
+    environment:
+      # --- KRaft Mode (thay thế Zookeeper) ---
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_KRAFT_CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
+      # --- Listeners ---
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      # --- Topic defaults ---
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_NUM_PARTITIONS=3
+      - KAFKA_CFG_LOG_RETENTION_HOURS=168
+      # --- Performance (giảm RAM cho dev) ---
+      - KAFKA_HEAP_OPTS=-Xmx512m -Xms256m
+    volumes:
+      - kafka_data:/bitnami/kafka
+    networks:
+      - bigdata-net
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ==========================================================================
+  # 🐘 POSTGRESQL — Database dùng chung (App Users + Hive Metastore)
+  # ==========================================================================
+  # Vai trò kép:
+  # 1. Database 'app_db': lưu users/preferences → Debezium CDC bắt sự kiện
+  # 2. Database 'hive_db': lưu Hive metastore schema (nội bộ, không cần code)
+  # Chiến thuật: gộp 2 DB vào 1 container PostgreSQL duy nhất → tiết kiệm ~300MB RAM
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    ports:
+      - "5433:5432"     # Dùng port 5433 để tránh xung đột nếu có PG local
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: app_db
+      # Hive 2.3.2 JDBC driver không hỗ trợ scram-sha-256 → dùng md5
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init-databases.sql:/docker-entrypoint-initdb.d/01-init.sql
+    # Bật WAL logical replication cho Debezium CDC + md5 auth
+    command: >
+      postgres
+        -c wal_level=logical
+        -c max_wal_senders=4
+        -c max_replication_slots=4
+        -c password_encryption=md5
+    networks:
+      - bigdata-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d app_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================================================
+  # 🔌 DEBEZIUM KAFKA CONNECT — CDC từ PostgreSQL
+  # ==========================================================================
+  # Vai trò: Giám sát Write-Ahead Log (WAL) của PostgreSQL.
+  # Khi bảng 'users' có INSERT/UPDATE/DELETE → tự động gửi event vào Kafka.
+  # App backend KHÔNG biết và KHÔNG cần biết sự tồn tại của component này.
+  kafka-connect:
+    image: debezium/connect:2.5
+    container_name: kafka-connect
+    ports:
+      - "8083:8083"     # REST API để đăng ký/quản lý connector
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: _connect_configs
+      OFFSET_STORAGE_TOPIC: _connect_offsets
+      STATUS_STORAGE_TOPIC: _connect_statuses
+      CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      STATUS_STORAGE_REPLICATION_FACTOR: 1
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      HEAP_OPTS: "-Xmx512m -Xms256m"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - bigdata-net
+
+  # ==========================================================================
+  # 🗄️ HADOOP HDFS — Hệ thống file phân tán
+  # ==========================================================================
+  # Vai trò: "Ổ cứng khổng lồ" lưu trữ file Parquet đã xử lý.
+  # NameNode: quản lý metadata (file nào nằm ở đâu)
+  # DataNode: lưu trữ dữ liệu thực sự
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    ports:
+      - "9870:9870"     # HDFS Web UI (xem file, dung lượng, health)
+      - "9000:9000"     # HDFS protocol
+    environment:
+      - CLUSTER_NAME=tarot-cluster
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - CORE_CONF_hadoop_http_staticuser_user=root
+      - HDFS_CONF_dfs_replication=1
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - HDFS_CONF_dfs_webhdfs_enabled=true
+      # Giảm RAM cho dev
+      - HADOOP_HEAPSIZE=512
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+    networks:
+      - bigdata-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9870/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    ports:
+      - "9864:9864"     # DataNode Web UI
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_replication=1
+      - HDFS_CONF_dfs_permissions_enabled=false
+      # Giảm RAM cho dev
+      - HADOOP_HEAPSIZE=512
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+    depends_on:
+      namenode:
+        condition: service_healthy
+    networks:
+      - bigdata-net
+
+  # ==========================================================================
+  # 🐝 HIVE — SQL Interface trên HDFS
+  # ==========================================================================
+  # Vai trò: Cho phép truy vấn dữ liệu Parquet trên HDFS bằng SQL.
+  # Hive Metastore: lưu schema bảng (cột, kiểu dữ liệu, vị trí file)
+  # Hive Server: nhận câu SQL và thực thi lên HDFS
+
+  hive-metastore:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-metastore
+    ports:
+      - "9083:9083"     # Thrift protocol (Spark/HiveServer kết nối vào đây)
+    environment:
+      # Kết nối tới PostgreSQL database 'hive_db' (được tạo bởi init script)
+      - HIVE_SITE_CONF_javax_jdo_option_ConnectionURL=jdbc:postgresql://postgres:5432/hive_db
+      - HIVE_SITE_CONF_javax_jdo_option_ConnectionDriverName=org.postgresql.Driver
+      - HIVE_SITE_CONF_javax_jdo_option_ConnectionUserName=admin
+      - HIVE_SITE_CONF_javax_jdo_option_ConnectionPassword=admin123
+      - HIVE_SITE_CONF_datanucleus_autoCreateSchema=true
+      - HIVE_SITE_CONF_datanucleus_schema_autoCreateAll=true
+      - HIVE_SITE_CONF_hive_metastore_schema_verification=false
+      - HIVE_SITE_CONF_hive_metastore_uris=thrift://hive-metastore:9083
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    # Metastore service. Schema init chạy 1 lần bằng docker exec (xem scripts/setup-hdfs.sh)
+    command: /opt/hive/bin/hive --service metastore
+    depends_on:
+      namenode:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - bigdata-net
+
+  hive-server:
+    image: bde2020/hive:2.3.2-postgresql-metastore
+    container_name: hive-server
+    ports:
+      - "10000:10000"   # JDBC/ODBC (Beeline, BI tools kết nối qua đây)
+      - "10002:10002"   # Hive Web UI
+    environment:
+      - HIVE_SITE_CONF_javax_jdo_option_ConnectionURL=jdbc:postgresql://postgres:5432/hive_db
+      - HIVE_SITE_CONF_javax_jdo_option_ConnectionDriverName=org.postgresql.Driver
+      - HIVE_SITE_CONF_javax_jdo_option_ConnectionUserName=admin
+      - HIVE_SITE_CONF_javax_jdo_option_ConnectionPassword=admin123
+      - HIVE_SITE_CONF_hive_metastore_uris=thrift://hive-metastore:9083
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    depends_on:
+      - hive-metastore
+    networks:
+      - bigdata-net
+
+  # ==========================================================================
+  # ⚡ SPARK — Bộ xử lý dữ liệu lớn
+  # ==========================================================================
+  # Vai trò: Đọc event từ Kafka, biến đổi (parse, explode, join, enrich),
+  #          rồi ghi kết quả vào HDFS dưới dạng Parquet.
+  # Code PySpark nằm ở máy host (./spark_jobs/) được mount vào container.
+  # Bạn sửa code trên VSCode (Windows), chạy bên trong Linux container.
+  spark-master:
+    image: bitnamilegacy/spark:3.5.1
+    container_name: spark-master
+    ports:
+      - "8081:8080"     # Spark Web UI (theo dõi job đang chạy)
+      - "7077:7077"     # Spark master protocol
+    environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      # Mount thư mục spark_jobs từ máy host vào container
+      - ./spark_jobs:/app/spark_jobs
+    networks:
+      - bigdata-net
+
+  # ==========================================================================
+  # ⚡ SPARK WORKER — Node xử lý thực tế
+  # ==========================================================================
+  # Vai trò: Nhận task từ Spark Master và thực thi chúng.
+  # Trong production sẽ có nhiều worker; ở dev chỉ cần 1.
+  spark-worker:
+    image: bitnamilegacy/spark:3.5.1
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=2
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    depends_on:
+      - spark-master
+    volumes:
+      - ./spark_jobs:/app/spark_jobs
+    networks:
+      - bigdata-net
+
+  # ==========================================================================
+  # 📊 KAFKA UI — Giao diện web quản lý Kafka
+  # ==========================================================================
+  # Vai trò: Web UI để theo dõi topics, messages, consumer groups.
+  # Truy cập: http://localhost:8085
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8085:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: tarot-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: debezium
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - bigdata-net
+
+# ==========================================================================
+# VOLUMES & NETWORKS
+# ==========================================================================
+
+volumes:
+  kafka_data:
+    driver: local
+  postgres_data:
+    driver: local
+  namenode_data:
+    driver: local
+  datanode_data:
+    driver: local
+
+networks:
+  bigdata-net:
+    driver: bridge
+    name: tarot-bigdata-network

@@ -54,6 +54,15 @@ async def lifespan(app: FastAPI):
     # Wait a moment for database to be fully ready
     await asyncio.sleep(0.5)
     
+    # Initialize Kafka producer (Big Data pipeline)
+    if settings.KAFKA_ENABLED:
+        try:
+            from app.services.kafka_producer import get_kafka_producer
+            kafka_producer = get_kafka_producer()
+            await kafka_producer.start()
+        except Exception as e:
+            logger.warning("⚠️ Kafka producer failed to start (non-blocking)", error=str(e))
+    
     # Check and log all service connections
     try:
         connection_summary = await log_connection_status(detailed=True)
@@ -68,6 +77,15 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
+    # Stop Kafka producer
+    if settings.KAFKA_ENABLED:
+        try:
+            from app.services.kafka_producer import get_kafka_producer
+            kafka_producer = get_kafka_producer()
+            await kafka_producer.stop()
+        except Exception as e:
+            logger.warning("Error stopping Kafka producer", error=str(e))
+    
     logger.info("Shutting down Tarot AI Backend")
 
 def create_application() -> FastAPI:
@@ -116,6 +134,10 @@ def create_application() -> FastAPI:
             {
                 "name": "system", 
                 "description": "Health-check & kết nối dịch vụ",
+            },
+            {
+                "name": "bigdata", 
+                "description": "Big Data pipeline: status, stats, dead-letter queue, replay",
             },
         ]
     )

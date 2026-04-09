@@ -1,6 +1,6 @@
 # 🎯 Tarot System - Connection Service
 """
-Service for checking connections to external services (MongoDB, Ollama)
+Service for checking connections to external services (MongoDB, Ollama, Kafka)
 """
 
 import asyncio
@@ -185,6 +185,57 @@ class ConnectionService:
                     "timeout": settings.OLLAMA_TIMEOUT
                 }
             )
+
+    async def check_kafka_connection(self) -> ConnectionStatus:
+        """Check Kafka broker connectivity"""
+        service_name = "Kafka"
+        
+        if not settings.KAFKA_ENABLED:
+            return ConnectionStatus(
+                service_name=service_name,
+                connected=True,
+                details={"status": "disabled", "note": "KAFKA_ENABLED=False"}
+            )
+        
+        try:
+            from app.services.kafka_producer import get_kafka_producer
+            producer = get_kafka_producer()
+            
+            if producer._is_running:
+                metrics = producer.get_metrics()
+                return ConnectionStatus(
+                    service_name=service_name,
+                    connected=True,
+                    details={
+                        "bootstrap_servers": settings.KAFKA_BOOTSTRAP_SERVERS,
+                        "topic": settings.KAFKA_TOPIC_READINGS,
+                        "events_sent": metrics.get("events_sent", 0),
+                        "events_failed": metrics.get("events_failed", 0),
+                        "success_rate": metrics.get("success_rate", 0),
+                        "avg_latency_ms": metrics.get("avg_latency_ms", 0),
+                    }
+                )
+            else:
+                return ConnectionStatus(
+                    service_name=service_name,
+                    connected=False,
+                    error="Producer not running",
+                    details={
+                        "bootstrap_servers": settings.KAFKA_BOOTSTRAP_SERVERS,
+                        "topic": settings.KAFKA_TOPIC_READINGS,
+                    }
+                )
+        except Exception as e:
+            error_msg = str(e)
+            logger.error("Kafka connection check failed", error=error_msg)
+            return ConnectionStatus(
+                service_name=service_name,
+                connected=False,
+                error=error_msg,
+                details={
+                    "bootstrap_servers": settings.KAFKA_BOOTSTRAP_SERVERS,
+                }
+            )
     
     async def check_all_connections(self, use_cache: bool = True) -> Dict[str, ConnectionStatus]:
         """Check all service connections"""
@@ -198,17 +249,19 @@ class ConnectionService:
                 if current_time - status.timestamp < self.cache_duration:
                     cached_results[service] = status
             
-            if len(cached_results) == 2:  # MongoDB and Ollama
+            if len(cached_results) == 3:  # MongoDB, Ollama, and Kafka
                 return cached_results
         
         # Run connection checks in parallel
         mongodb_task = asyncio.create_task(self.check_mongodb_connection())
         ollama_task = asyncio.create_task(self.check_ollama_connection())
+        kafka_task = asyncio.create_task(self.check_kafka_connection())
         
         try:
-            mongodb_status, ollama_status = await asyncio.gather(
+            mongodb_status, ollama_status, kafka_status = await asyncio.gather(
                 mongodb_task, 
                 ollama_task,
+                kafka_task,
                 return_exceptions=True
             )
             
@@ -227,20 +280,30 @@ class ConnectionService:
                     error=str(ollama_status)
                 )
             
+            if isinstance(kafka_status, Exception):
+                kafka_status = ConnectionStatus(
+                    service_name="Kafka",
+                    connected=False,
+                    error=str(kafka_status)
+                )
+            
             # Update cache
             self.connection_cache["mongodb"] = mongodb_status
             self.connection_cache["ollama"] = ollama_status
+            self.connection_cache["kafka"] = kafka_status
             
             return {
                 "mongodb": mongodb_status,
-                "ollama": ollama_status
+                "ollama": ollama_status,
+                "kafka": kafka_status,
             }
             
         except Exception as e:
             logger.error("Failed to check connections", error=str(e))
             return {
                 "mongodb": ConnectionStatus("MongoDB", False, error=str(e)),
-                "ollama": ConnectionStatus("Ollama", False, error=str(e))
+                "ollama": ConnectionStatus("Ollama", False, error=str(e)),
+                "kafka": ConnectionStatus("Kafka", False, error=str(e)),
             }
     
     async def log_connection_status(self, detailed: bool = True) -> Dict[str, Any]:

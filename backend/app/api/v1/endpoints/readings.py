@@ -3,27 +3,48 @@
 API endpoints for tarot readings
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from motor.motor_asyncio import AsyncIOMotorCollection
 import structlog
 from typing import List, Optional
 
 from app.core.database import get_readings_collection
-from app.database.models import Reading, ReadingCreate, ReadingResponse, ReadingUpdate
+from app.database.models import Reading, ReadingCreate, ReadingResponse, ReadingUpdate, User
 from app.services.reading_service import ReadingService
+from app.core.security import get_optional_current_user
+from app.services.rate_limit import check_and_increment_quota
 
 logger = structlog.get_logger()
 router = APIRouter()
 
 @router.post("/", response_model=ReadingResponse)
 async def create_reading(
+    request: Request,
     reading_data: ReadingCreate,
-    collection: AsyncIOMotorCollection = Depends(get_readings_collection)
+    collection: AsyncIOMotorCollection = Depends(get_readings_collection),
+    current_user: Optional[User] = Depends(get_optional_current_user)
 ):
     """
-    Create a new tarot reading
+    Create a new tarot reading (With Rate Limiting and Guest Restrictions)
     """
     try:
+        # Rate Limiting Logic
+        is_guest = current_user is None
+        identifier = request.client.host if is_guest else str(current_user.id)
+        await check_and_increment_quota(identifier, is_guest=is_guest)
+
+        # Apply Feature Restrictions for Guest Users
+        if is_guest:
+            # Force guest users to use default local model to save API quota
+            reading_data.ai_model_used = "qwen2.5:1.5b"
+            
+            # Remove personalization payload if any
+            if hasattr(reading_data, "user_context"):
+                reading_data.user_context = None
+        else:
+            # Optionally set user_id if they are logged in and omitted it
+            if not reading_data.user_id:
+                reading_data.user_id = str(current_user.id)
         # Additional validation
         if not reading_data.session_id or not reading_data.session_id.strip():
             raise HTTPException(status_code=400, detail="Session ID is required")
