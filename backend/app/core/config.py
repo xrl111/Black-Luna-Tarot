@@ -51,11 +51,11 @@ class Settings(BaseSettings):
     OLLAMA_MODEL: str = "qwen2.5:1.5b"
     OLLAMA_TIMEOUT: int = 30
     # Generation options (tunable for latency/quality tradeoff)
-    OLLAMA_NUM_PREDICT: int = 320
+    OLLAMA_NUM_PREDICT: int = 1500
     OLLAMA_TOP_K: int = 40
     OLLAMA_TOP_P: float = 0.9
     OLLAMA_TEMPERATURE: float = 0.7
-    OLLAMA_NUM_CTX: int = 2048
+    OLLAMA_NUM_CTX: int = 4096
     OLLAMA_KEEP_ALIVE: str = "5m"
     OLLAMA_NUM_THREAD: int | None = None
     GROQ_API_KEY: Optional[str] = None

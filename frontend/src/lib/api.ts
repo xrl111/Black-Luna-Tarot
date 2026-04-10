@@ -35,10 +35,9 @@ axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
     // We export the handling to components via catching, 
-    // but we can globally catch 401 Unauthorized to remove token
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
-      // Optional: window.location.href = "/";
+      window.dispatchEvent(new Event("auth-expired"));
     }
     
     // We let components catch 429 to show their own UI, or we can use toast here

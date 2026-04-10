@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "sonner";
 import { axiosClient, apiUrl } from "@/lib/api";
 
 type UserPreferences = {
@@ -73,6 +74,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     initializeAuth();
+  }, []);
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      logout();
+      toast.error("Phiên đăng nhập đã hết hạn", {
+        description: "Vui lòng đăng nhập lại để tiếp tục sử dụng.",
+        duration: 5000,
+      });
+    };
+    window.addEventListener("auth-expired", handleAuthExpired);
+    return () => window.removeEventListener("auth-expired", handleAuthExpired);
   }, []);
 
   const login = async (newToken: string) => {

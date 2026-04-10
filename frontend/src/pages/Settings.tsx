@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Cpu, Zap, Key, User, Bot } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -14,6 +16,14 @@ const Settings = () => {
     tarot_tradition: "rider_waite",
     belief_system: "spiritual_but_practical"
   });
+  
+  // LLM Config state
+  const [llmSettings, setLlmSettings] = useState({
+    provider: "ollama",
+    model: "qwen2.5:1.5b",
+    api_key: "",
+  });
+
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -25,6 +35,14 @@ const Settings = () => {
         belief_system: user.preferences.belief_system || "spiritual_but_practical"
       });
     }
+
+    // Load LLM Settings from local storage
+    const savedLlm = localStorage.getItem("tarot_llm_config");
+    if (savedLlm) {
+      try {
+        setLlmSettings(JSON.parse(savedLlm));
+      } catch (e) {}
+    }
   }, [user]);
 
   if (isLoading) return <div className="text-center py-20">Đang tải...</div>;
@@ -35,10 +53,19 @@ const Settings = () => {
   }
 
   const handleSave = async () => {
+    if (llmSettings.provider !== "ollama" && !llmSettings.api_key) {
+      toast.error("Vui lòng nhập API Key cho dịch vụ LLM đã chọn để hệ thống có thể kết nối.");
+      return;
+    }
+
     setSaving(true);
     try {
+      // 1. Save Persona to Backend
       await updatePreferences(formData);
-      toast.success("Cập nhật cài đặt thành công!");
+      // 2. Save LLM config to local storage
+      localStorage.setItem("tarot_llm_config", JSON.stringify(llmSettings));
+      
+      toast.success("Cập nhật toàn bộ cấu hình thành công!");
     } catch (error) {
       toast.error("Có lỗi xảy ra khi lưu cài đặt.");
     } finally {
@@ -58,17 +85,24 @@ const Settings = () => {
       className="max-w-2xl mx-auto"
     >
       <Card className="border-mystic-500/20 bg-background/80 backdrop-blur-sm">
-        <CardHeader>
+        <CardHeader className="border-b mb-6">
           <CardTitle className="text-2xl font-cinzel text-mystic-600 dark:text-mystic-400">
-            Cá Nhân Hóa Trải Nghiệm (Persona)
+            Trung Tâm Cài Đặt (Settings Center)
           </CardTitle>
           <CardDescription>
-            Thiết lập phong cách đọc bài AI Tarot để phù hợp nhất với bản thân bạn.
+            Quản lý cả tính cách của AI (Persona) lẫn cấu hình động cơ não bộ (LLM Engine).
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
+        <CardContent className="space-y-8">
+          
+          {/* Section 1: Persona */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
+              <User className="w-5 h-5" />
+              1. Cá Nhân Hóa (AI Persona)
+            </h3>
+            <div className="space-y-2">
             <label className="text-sm font-medium">Phong cách đọc bài (Reading Style)</label>
             <select 
               className="w-full p-2 rounded-md border bg-background"
@@ -120,6 +154,60 @@ const Settings = () => {
               <option value="psychological">Phân tích Tâm lý học</option>
             </select>
           </div>
+          </div>
+
+          <hr className="border-mystic-500/20" />
+
+          {/* Section 2: LLM Config */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
+              <Bot className="w-5 h-5" />
+              2. Động Cơ Não Bộ AI (Oracle Engine)
+            </h3>
+            <p className="text-sm text-muted-foreground">Ollama là mặc định (chạy máy chủ nội bộ miễn phí). Bạn có thể cấu hình API ngoài để AI thông minh vượt trội hơn.</p>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2"><Cpu className="w-4 h-4"/> Nền tảng (Provider)</label>
+              <select 
+                className="w-full p-2 rounded-md border bg-background"
+                value={llmSettings.provider}
+                onChange={(e) => setLlmSettings({...llmSettings, provider: e.target.value})}
+              >
+                <option value="ollama">Ollama (Mặc định - Cục bộ)</option>
+                <option value="openai">OpenAI (ChatGPT)</option>
+                <option value="groq">Groq (Llama, Mixtral)</option>
+                <option value="gemini">Google Gemini</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2"><Zap className="w-4 h-4"/> Tên mô hình (Model Name)</label>
+              <Input 
+                placeholder="VD: gpt-4o, llama-3.3-70b, gemma4:latest" 
+                value={llmSettings.model} 
+                onChange={(e) => setLlmSettings({...llmSettings, model: e.target.value})} 
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </div>
+
+            {llmSettings.provider !== "ollama" && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2"><Key className="w-4 h-4"/> API Key</label>
+                <Input 
+                  type="password" 
+                  placeholder="sk-..." 
+                  value={llmSettings.api_key} 
+                  onChange={(e) => setLlmSettings({...llmSettings, api_key: e.target.value})} 
+                  autoComplete="off"
+                />
+                <p className="text-[11px] text-muted-foreground text-orange-500">
+                  Mã API lưu cục bộ trên máy của bạn (Browser Storage), không lưu trên Server Black Luna Tarot.
+                </p>
+              </div>
+            )}
+          </div>
+
         </CardContent>
 
         <CardFooter className="flex justify-end gap-3 border-t pt-6 mt-6 border-mystic-500/20">

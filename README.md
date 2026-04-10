@@ -12,32 +12,31 @@
 
 ## 🌟 **Tính năng chính**
 
-- **🤖 AI xem bói thông minh** — Sử dụng Ollama local (Qwen2, Llama 3, Mistral)
-- **🎴 78 lá bài Tarot** — Đầy đủ Major & Minor Arcana
-- **🌐 Giao diện đẹp** — React 19 + TypeScript + Tailwind CSS + Shadcn/UI
-- **📱 Responsive** — Hoạt động tốt trên mọi thiết bị
-- **⚡ Streaming** — AI response hiển thị real-time
-- **🔒 Bảo mật** — Rate limiting, security headers, CORS
+- **🤖 AI xem bói thông minh** — Sử dụng Ollama local (Qwen2, Llama 3) hoặc Cloud Router (Groq/OpenAI). Hệ thống có luồng suy luận ngầm rẽ nhánh logic (Auto Intake).
+- **🎴 78 lá bài Tarot** — Đầy đủ Major & Minor Arcana.
+- **🌐 Giao diện đẹp** — React 19 + TypeScript + Tailwind CSS + Shadcn/UI (Hỗ trợ Dark Mode/Light Mode).
+- **🔒 Phân Quyền & Cá Nhân Hoá** — Hệ thống tích hợp Google OAuth2. Chế độ Guest/Anonymous (Giới hạn lượt dùng), Chế độ Account (Được lưu giữ Personalization Persona).
+- **📈 Big Data Ready** — Xây dựng theo kiến trúc Pipeline Dữ Liệu Lớn. Sử dụng Debezium (CDC) -> Apache Kafka -> Apache Spark -> Hive Data Warehouse. Sẵn sàng cho việc phân tích và huấn luyện AI nâng cao.
+- **⚡ Streaming** — AI response hiển thị real-time siêu mượt.
 - **🚀 Miễn phí 100%** — Không tốn chi phí vận hành
 
 ## 🏗️ **Kiến trúc hệ thống**
 
 ```
 Black-Luna-Tarot/
-├── backend/                 # FastAPI Backend
+├── backend/                 # FastAPI Backend (Python)
 │   ├── app/
-│   │   ├── api/v1/endpoints/  # API endpoints (tarot_cards, readings, ai_service, system)
-│   │   ├── core/              # Config, database, middleware, exceptions
-│   │   ├── database/          # Pydantic models & seed data
-│   │   └── services/          # Business logic (11 service files)
-│   └── requirements.txt
-├── frontend/               # Vite + React Frontend
+│   │   ├── api/v1/endpoints/  # API endpoints (Auth, readings, ai_service, bigdata)
+│   │   ├── core/              # Config, Security (Google JWT), database
+│   │   ├── database/          # Pydantic models & MongoDB connection
+│   │   └── services/          # Services (rate_limit.py, ai_service.py...)
+├── frontend/               # Vite + React Frontend (TypeScript)
 │   ├── src/
-│   │   ├── pages/           # Page components (Home, Cards, Reading, About)
-│   │   ├── components/      # Navbar, SEO, Shadcn/UI
-│   │   └── lib/             # API client & utilities
+│   │   ├── contexts/        # Auth Context quản lý User Token
+│   │   ├── pages/           # Pages (Settings Persona, Reading...)
 │   └── package.json
-└── docs/                  # Documentation
+├── bigdata/                # (Dự kiến/Tích hợp) Debezium, Kafka, Spark Streaming scripts
+└── docs/                   # Documentation and Guides
 ```
 
 ## 🚀 **Cài đặt nhanh**

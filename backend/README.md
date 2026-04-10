@@ -2,7 +2,9 @@
 
 ## 📋 Overview
 
-FastAPI backend for the Tarot AI Reading System with extensible architecture, MongoDB integration, and AI service capabilities.
+FastAPI backend for the Tarot AI Reading System with an extensible architecture. 
+Now powered by a **Big Data Pipeline** (Kafka, Hive), **Google OAuth2 JWT Security**, and a robust **Rate Limiting Service**.
+
 
 ## 🏗️ Architecture
 
@@ -25,9 +27,9 @@ backend/
 │   │           ├── tarot_cards.py
 │   │           ├── readings.py
 │   │           ├── users.py
-│   │           ├── sessions.py
+│   │           ├── auth.py        # Google OAuth Integration
 │   │           ├── ai_service.py
-│   │           └── analytics.py
+│   │           └── bigdata.py     # Kafka Producers & Pipeline 
 │   ├── services/              # Business logic layer
 │   │   ├── tarot_service.py
 │   │   ├── reading_service.py
@@ -193,26 +195,25 @@ ENABLE_ANALYTICS=true
 
 ## 🔐 Security Features
 
-### **1. Authentication & Authorization**
+### **1. Authentication & Authorization (Tiered System)**
 
-- JWT token-based authentication
-- Role-based access control
-- Session management
+- **Google OAuth2** for seamless Login.
+- **JWT token-based** stateless sessions.
+- **Role-based Access Control**:
+  - `Guest`: Limited to 3 requests/day, restricted AI features.
+  - `Account`: 20 requests/day, unlock full Personalized Settings (Persona).
 
-### **2. Data Protection**
+### **2. Big Data Streaming (Event-Driven)**
 
-- Input validation with Pydantic
-- SQL injection prevention (MongoDB)
-- XSS protection headers
-- CORS configuration
+- **Idempotency keys** prevent duplicate payload processing.
+- `AIOKafkaProducer` integrated for pushing `reading.generated` events to a Kafka Topic.
+- Enables Analytics via downstream Apache Spark streaming.
 
-### **3. Rate Limiting**
+### **3. Data Protection & Rate Limiting**
 
-- Per-IP rate limiting
-- Configurable limits
-- Rate limit headers
-
-### **4. Logging & Monitoring**
+- Rate limits strictly enforced using Atomic `upsert` queries to MongoDB.
+- XSS/SQL Injection protection via proper Pydantic schema validation.
+- CORS Configuration for Frontend isolated domains.
 
 - Structured logging with structlog
 - Request/response logging

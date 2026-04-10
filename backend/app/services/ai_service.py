@@ -343,16 +343,28 @@ LƯU Ý:
             return
 
         url = f"{self.ollama_url}/api/generate"
+        
+        request_model = self.ollama_model
+        if llm_config and llm_config.get("provider", "").lower() == "ollama" and llm_config.get("model"):
+            request_model = llm_config.get("model")
+            
+        # Tính toán linh hoạt token limit dựa trên số lượng lá bài
+        num_cards = len(cards_drawn) if cards_drawn else 1
+        # Mỗi lá bài cần khoảng 450 tokens để phân tích chi tiết. Cơ bản cần 400 tokens cho mở/kết.
+        dynamic_predict = max(settings.OLLAMA_NUM_PREDICT, 400 + (num_cards * 450))
+        # Context window cần lớn hơn Predict để chứa được cả câu hỏi, lịch sử và prompt (thêm ~800 tokens/lá)
+        dynamic_ctx = max(settings.OLLAMA_NUM_CTX, 1500 + (num_cards * 800))
+
         payload = {
-            "model": self.ollama_model,
+            "model": request_model,
             "prompt": prompt,
             "stream": True,
             "options": {
-                "num_predict": settings.OLLAMA_NUM_PREDICT,
+                "num_predict": dynamic_predict,
                 "top_k": settings.OLLAMA_TOP_K,
                 "top_p": settings.OLLAMA_TOP_P,
                 "temperature": settings.OLLAMA_TEMPERATURE,
-                "num_ctx": settings.OLLAMA_NUM_CTX,
+                "num_ctx": dynamic_ctx,
                 "keep_alive": settings.OLLAMA_KEEP_ALIVE,
                 **({"num_thread": settings.OLLAMA_NUM_THREAD} if settings.OLLAMA_NUM_THREAD else {}),
             },
@@ -407,15 +419,15 @@ LƯU Ý:
 
         except (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout) as e:
             logger.error("Ollama stream connection error", error=str(e), url=url, model=self.ollama_model)
-            raise AIServiceException(
-                "AI service unavailable",
-                details={"url": url, "model": self.ollama_model, "error": str(e)},
-            )
-        except AIServiceException:
-            raise
+            yield f"\n\n\n*(Cảnh báo: Kết nối tới máy chủ AI đang bị quá tải hoặc gián đoạn. Xin vui lòng chờ một lát rồi thử lại!)*"
+            return
+        except AIServiceException as e:
+            yield f"\n\n\n*(Cảnh báo: Lỗi hệ thống AI - {e.message})*"
+            return
         except Exception as e:
             logger.error("Failed streaming from Ollama", error=str(e))
-            raise AIServiceException("Failed to stream AI response", details={"error": str(e)})
+            yield f"\n\n\n*(Cảnh báo: Có lỗi xảy ra trong quá trình nhận dữ liệu từ AI. Xin vui lòng thử lại!)*"
+            return
 
     async def _call_external_llm(self, prompt: str, llm_config: Dict[str, Any]) -> str:
         provider = llm_config.get("provider", "").lower()
@@ -516,7 +528,8 @@ LƯU Ý:
                                 pass
         except Exception as e:
             logger.error("Failed external LLM stream", error=str(e))
-            raise AIServiceException("Failed to stream external AI service")
+            yield f"\n\n\n*(Cảnh báo: Kết nối tới API của {provider.upper()} bị gián đoạn. Xin vui lòng kiểm tra lại API Key hoặc mạng lưới của bạn!)*"
+            return
     
     def _process_ai_response(self, response: str, cards: List[Dict[str, Any]], model_used: Optional[str] = None) -> Dict[str, Any]:
         """

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Sparkles, Shuffle, Save, Eye, Settings, Wand2, Image as ImageIcon } from "lucide-react";
-import { LLMSettingsModal } from "@/components/LLMSettingsModal";
+import { Sparkles, Shuffle, Eye, Wand2, Image as ImageIcon } from "lucide-react";
 import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -64,7 +63,6 @@ const Reading = () => {
   const [drawnCards, setDrawnCards] = useState<TarotCard[]>([]);
   const [selectionLocked, setSelectionLocked] = useState<boolean>(false);
   const [shuffledDeck, setShuffledDeck] = useState<TarotCard[]>([]);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [intakeResult, setIntakeResult] = useState<{name: string, reason: string} | null>(null);
   const [isIntaking, setIsIntaking] = useState(false);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -176,35 +174,77 @@ const Reading = () => {
       const decoder = new TextDecoder();
       let fullText = "";
       if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          fullText += chunk;
-          setStreamingText(fullText);
-          // Auto-scroll to the reading panel as content grows
-          if (readingRef.current) {
-            readingRef.current.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            fullText += chunk;
+            setStreamingText(fullText);
           }
+        } catch (streamErr) {
+          console.error("Stream reading interrupted:", streamErr);
+          fullText += "\n\n*(Cảnh báo: Kết nối tới AI bị gián đoạn giữa chừng do quá tải hoặc mất mạng. Vui lòng thử lại!)*";
+          setStreamingText(fullText);
         }
       }
       setIsStreaming(false);
       return { response: fullText } as any;
     },
     onSuccess: (data) => {
+      const finalResponse = streamingText && streamingText.length > 0
+            ? streamingText
+            : data.response || "Không thể tạo được giải thích.";
+      
+      const newSessionId = `session_${Date.now()}`;
+      
       setReadingResult({
         question,
         cards: drawnCards || [],
-        ai_response:
-          streamingText && streamingText.length > 0
-            ? streamingText
-            : data.response || "Không thể tạo được giải thích.",
-        session_id: `session_${Date.now()}`,
+        ai_response: finalResponse,
+        session_id: newSessionId,
       });
       setIsGenerating(false);
+
+      // Auto-save the reading silently
+      if (drawnCards && drawnCards.length > 0) {
+        const mappedSpread = readingType === "1" ? "single_card" : 
+                             readingType === "3" ? "three_card" :
+                             readingType === "5" ? "celtic_cross" :
+                             readingType === "10" ? "celtic_cross" : "custom";
+
+        const readingData = {
+          session_id: newSessionId,
+          question: question,
+          cards_drawn: drawnCards.map((card, idx) => ({
+            card_id: card.id,
+            position: idx + 1,
+            orientation: card.is_reversed ? "reversed" : "upright",
+            position_meaning: "General advice",
+            interpretation: "Interpreted by AI in full text",
+            card_name: card.name,
+            card_name_vi: card.name_vi,
+            traditional_meaning: "Ý nghĩa truyền thống của lá bài này",
+            card_type: card.arcana === "major" ? "major" : "minor",
+            suit: card.suit,
+            number: String(card.number),
+          })),
+          ai_response: finalResponse,
+          reading_type: "general", // Validated strictly by backend
+          reading_spread: mappedSpread,
+          ai_model_used: (() => { 
+            try { 
+              const config = JSON.parse(localStorage.getItem("tarot_llm_config") || "{}"); 
+              return config.model || "qwen2.5:1.5b"; 
+            } catch { 
+              return "qwen2.5:1.5b"; 
+            } 
+          })(),
+        };
+
+        axiosClient.post(apiUrl("/api/v1/readings/"), readingData)
+          .catch(err => console.error("Auto save failed:", err));
+      }
     },
     onError: (error: any) => {
       console.error("Error generating reading:", error);
@@ -236,23 +276,7 @@ const Reading = () => {
     },
   });
 
-  // Save reading
-  const saveReadingMutation = useMutation({
-    mutationFn: async (readingData: any) => {
-      const response = await axiosClient.post(
-        apiUrl("/api/v1/readings/"),
-        readingData
-      );
-      return response.data;
-    },
-    onSuccess: () => {
-      alert("Đã lưu reading thành công!");
-    },
-    onError: (error) => {
-      console.error("Error saving reading:", error);
-      alert("Có lỗi xảy ra khi lưu reading.");
-    },
-  });
+  // Auto-saved directly via axios in generateReadingMutation onSuccess
 
   const handleDrawCards = async () => {
     if (!question.trim()) {
@@ -342,31 +366,6 @@ const Reading = () => {
     setIsGenerating(false);
   };
 
-  const handleSaveReading = () => {
-    if (!readingResult) {
-      alert("Không có reading để lưu.");
-      return;
-    }
-
-    const readingData = {
-      session_id: readingResult.session_id,
-      question: readingResult.question,
-      cards_drawn: readingResult.cards.map((card) => ({
-        card_id: card.id,
-        name: card.name,
-        name_vi: card.name_vi,
-        suit: card.suit,
-        arcana: card.arcana,
-        number: card.number,
-      })),
-      ai_response: readingResult.ai_response,
-      reading_type: readingType,
-      created_at: new Date().toISOString(),
-    };
-
-    saveReadingMutation.mutate(readingData);
-  };
-
   const readingTypes = [
     { value: "1", label: "1 lá bài - Câu hỏi đơn giản" },
     { value: "3", label: "3 lá bài - Quá khứ, Hiện tại, Tương lai" },
@@ -400,7 +399,6 @@ const Reading = () => {
 
   return (
     <>
-      <LLMSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <SEO
         title="Xem bói Tarot - Black Luna Tarot"
         description="Đặt câu hỏi, chọn bài thủ công hoặc tự động, tuỳ chỉnh thứ tự và xuôi/ngược. AI streaming bằng tiếng Việt."
@@ -415,23 +413,6 @@ const Reading = () => {
       >
         {/* Header */}
         <div className="relative text-center space-y-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="absolute right-0 top-0 rounded-full hover:bg-muted"
-            onClick={() => {
-              if (!user) {
-                toast.info("Tính năng giới hạn", {
-                  description: "Bạn cần Đăng Nhập để tùy chỉnh AI Oracle Engine và Persona."
-                });
-                return;
-              }
-              setIsSettingsOpen(true)
-            }}
-            title="Cấu hình AI (Oracle Engine) - Yêu cầu Đăng Nhập"
-          >
-            <Settings className={`w-6 h-6 transition-colors ${!user ? 'text-muted-foreground/40' : 'text-muted-foreground hover:text-primary'}`} />
-          </Button>
           <h1 className="text-4xl font-cinzel font-bold text-gradient">
             Xem bói Tarot
           </h1>
@@ -809,14 +790,6 @@ const Reading = () => {
                     <Sparkles className="h-5 w-5" />
                     Giải thích AI
                   </span>
-                  <Button
-                    onClick={handleSaveReading}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    Lưu reading
-                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -829,7 +802,12 @@ const Reading = () => {
 
                 <div>
                   <h4 className="font-semibold mb-2">Giải thích:</h4>
-                  <div className="bg-mystic-50/30 dark:bg-mystic-900/10 rounded-xl p-4 sm:p-6 shadow-inner border border-mystic-200/50 dark:border-mystic-800/50">
+                  <div 
+                    className="bg-mystic-50/30 dark:bg-mystic-900/10 rounded-xl p-4 sm:p-6 shadow-inner border border-mystic-200/50 dark:border-mystic-800/50"
+                    data-gramm="false" 
+                    data-gramm_editor="false" 
+                    data-enable-grammarly="false"
+                  >
                     <TarotMarkdownViewer content={streamingText || readingResult?.ai_response || ""} />
                   </div>
                   {(isStreaming || isGenerating) && (
