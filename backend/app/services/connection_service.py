@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Connection Service
+#  Tarot System - Connection Service
 """
 Service for checking connections to external services (MongoDB, Ollama, Kafka)
 """
@@ -33,7 +33,7 @@ class ConnectionStatus:
             "details": self.details,
             "error": self.error,
             "timestamp": self.timestamp,
-            "status": "✅ Connected" if self.connected else "❌ Disconnected"
+            "status": " Connected" if self.connected else " Disconnected"
         }
 
 class ConnectionService:
@@ -309,7 +309,7 @@ class ConnectionService:
     async def log_connection_status(self, detailed: bool = True) -> Dict[str, Any]:
         """Log connection status to console and return summary"""
         
-        logger.info("🔍 Checking service connections...")
+        logger.info(" Checking service connections...")
         
         connections = await self.check_all_connections(use_cache=False)
         
@@ -318,14 +318,14 @@ class ConnectionService:
             if status.connected:
                 if detailed and status.details:
                     logger.info(
-                        f"✅ {status.service_name} connection successful",
+                        f" {status.service_name} connection successful",
                         **status.details
                     )
                 else:
-                    logger.info(f"✅ {status.service_name} connection successful")
+                    logger.info(f" {status.service_name} connection successful")
             else:
                 logger.error(
-                    f"❌ {status.service_name} connection failed",
+                    f" {status.service_name} connection failed",
                     error=status.error,
                     details=status.details
                 )
@@ -335,9 +335,9 @@ class ConnectionService:
         total_count = len(connections)
         
         if connected_count == total_count:
-            logger.info(f"🎯 All services connected ({connected_count}/{total_count})")
+            logger.info(f" All services connected ({connected_count}/{total_count})")
         else:
-            logger.warning(f"⚠️  Some services disconnected ({connected_count}/{total_count})")
+            logger.warning(f"  Some services disconnected ({connected_count}/{total_count})")
         
         return {
             "connected_services": connected_count,

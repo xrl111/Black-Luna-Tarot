@@ -122,7 +122,7 @@ const CardDetail = () => {
                     imageUrl ? "hidden" : ""
                   }`}
                 >
-                  <span className="text-6xl">🃏</span>
+                  <span className="text-6xl"></span>
                 </div>
               </div>
               <div className="mt-4 space-y-2">

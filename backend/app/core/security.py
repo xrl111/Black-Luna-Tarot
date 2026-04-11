@@ -35,10 +35,15 @@ async def get_users_collection() -> AsyncIOMotorCollection:
     db = get_database()
     return db["users"]
 
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.core.postgres import get_pg_db
+from app.database.pg_models import PGUser
+
 async def get_current_user(
     token: Optional[str] = Depends(oauth2_scheme),
-    collection: AsyncIOMotorCollection = Depends(get_users_collection)
-) -> User:
+    session: AsyncSession = Depends(get_pg_db)
+) -> PGUser:
     """
     Dependency to get the current authenticated user.
     Throws 401 Unauthorized if token is missing or invalid.
@@ -57,32 +62,19 @@ async def get_current_user(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        user_id: str = payload.get("sub")
+        user_id: str = payload.get("sub") # In our app, 'sub' is email!
         if user_id is None:
             raise credentials_exception
     except jwt.PyJWTError:
         raise credentials_exception
         
-    # Fetch user from database using the PyObjectId or string
-    # We store the email or object id in sub. If it's email, we query by email. 
-    # Let's assume sub is email for simplicity of Google Auth.
-    from bson.errors import InvalidId
-    from bson.objectid import ObjectId
-    
-    user_doc = None
-    if "@" in user_id:
-        user_doc = await collection.find_one({"email": user_id})
-    else:
-        try:
-            user_doc = await collection.find_one({"_id": ObjectId(user_id)})
-        except InvalidId:
-            pass
+    # Query Postgres by email since 'sub' was set to email in auth.py
+    result = await session.execute(select(PGUser).where(PGUser.email == user_id))
+    user = result.scalar_one_or_none()
             
-    if user_doc is None:
+    if user is None:
         raise credentials_exception
         
-    # Convert dict to Pydantic Model
-    user = User(**user_doc)
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
         
@@ -90,8 +82,8 @@ async def get_current_user(
 
 async def get_optional_current_user(
     token: Optional[str] = Depends(oauth2_scheme),
-    collection: AsyncIOMotorCollection = Depends(get_users_collection)
-) -> Optional[User]:
+    session: AsyncSession = Depends(get_pg_db)
+) -> Optional[PGUser]:
     """
     Dependency to get the current authenticated user if exists.
     If no token is provided, returns None (Anonymous/Guest user).
@@ -100,7 +92,7 @@ async def get_optional_current_user(
         return None
         
     try:
-        return await get_current_user(token, collection)
+        return await get_current_user(token, session)
     except HTTPException:
         # If token is invalid for some reason, we could either reject or treat as guest.
         # It's safer to treat as Guest if we just want optional auth.

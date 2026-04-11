@@ -1,4 +1,4 @@
-# 🔮 Kế Hoạch Nâng Cấp Hệ Thống: "Professional Tarot Oracle"
+#  Kế Hoạch Nâng Cấp Hệ Thống: "Professional Tarot Oracle"
 
 **Bởi: Senior Developer x Senior Tarot Reader**
 
@@ -6,7 +6,7 @@ Dựa trên những đánh giá khắt khe trước đó và triết lý **AutoH
 
 ---
 
-## 1. 🛡️ AutoHarness Router (Lớp Phân Loại & Điều Hướng)
+## 1.  AutoHarness Router (Lớp Phân Loại & Điều Hướng)
 
 Thay vì cho phép LLM tự do quyết định cách giải quyết vấn đề, ta dùng thuật toán và một lượt gọi LLM siêu tốc để **đóng khung (harness)** ngữ cảnh, triệt tiêu hoàn toàn khả năng LLM chọn sai phương pháp (illegal moves).
 - **Intake Classifier**: Khi User nhập câu hỏi, mô hình Qwen 1.5B (nhỏ, siêu nhanh) sẽ chỉ phân loại câu hỏi (Đọc hiểu Intent) ra dạng JSON cứng: `{ "intent": "love" }` hoặc `{ "intent": "career" }`.
@@ -14,7 +14,7 @@ Thay vì cho phép LLM tự do quyết định cách giải quyết vấn đề,
 
 ---
 
-## 2. 🏗️ Tarot Logic Engine (Tầng Xử Lý Nghiệp Vụ)
+## 2.  Tarot Logic Engine (Tầng Xử Lý Nghiệp Vụ)
 
 Tarot không chỉ là "rút bài rồi đọc mô tả". Nó có hệ thống quy tắc huyền học (occult rules) rõ ràng.
 - **Elemental Dignities Calculator**: Tính toán tương tác giữa các nguyên tố (Lửa dập Nước, Khí bốc Lửa). Trả ra 1 kết luận gửi cho AI (Vd: "Trải bài thiếu nguyên tố Đất, hãy khuyên họ thực tế hơn").
@@ -22,7 +22,7 @@ Tarot không chỉ là "rút bài rồi đọc mô tả". Nó có hệ thống q
 
 ---
 
-## 3. 🧠 Kiến Trúc RAG (Retrieval-Augmented Generation) 
+## 3.  Kiến Trúc RAG (Retrieval-Augmented Generation) 
 
 Với model nhỏ, ta **BẮT BUỘC** phải tiêm kiến thức vào Prompt.
 Mỗi request gọi AI sẽ được hệ thống build thành 1 `Master Prompt` khổng lồ, bao gồm:
@@ -32,7 +32,7 @@ Mỗi request gọi AI sẽ được hệ thống build thành 1 `Master Prompt`
 
 ---
 
-## 4. 🔄 Sơ Đồ Kiến Trúc Luồng Mới (Mermaid)
+## 4.  Sơ Đồ Kiến Trúc Luồng Mới (Mermaid)
 
 ```mermaid
 sequenceDiagram
@@ -67,7 +67,7 @@ sequenceDiagram
 
 ---
 
-## 5. 🗄️ Cập Nhật Database & API Schema
+## 5.  Cập Nhật Database & API Schema
 
 **Request Payload MỚI cho Endpoint `/api/v1/ai/generate-reading`:**
 ```json

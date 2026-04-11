@@ -1,10 +1,10 @@
-# 🎯 Ollama Setup Guide for Tarot System
+#  Ollama Setup Guide for Tarot System
 
-## 📋 Overview
+##  Overview
 
 Ollama là một platform để chạy Large Language Models (LLMs) locally trên máy của bạn. Đây là giải pháp AI cho hệ thống Tarot của chúng ta.
 
-## 🚀 Quick Setup
+##  Quick Setup
 
 ### Option 1: Automatic Setup (Recommended)
 
@@ -58,7 +58,7 @@ ollama pull llama2:7b
 ollama run llama2 "Hello, tell me about tarot cards"
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### File `.env` Configuration
 
@@ -86,17 +86,17 @@ def ask_ollama(prompt: str, model: str = "llama2"):
     return response.json()["response"]
 ```
 
-## 📊 Available Models
+##  Available Models
 
 | Model        | Size   | Speed  | Quality      | Recommended |
 | ------------ | ------ | ------ | ------------ | ----------- |
-| `llama2`     | ~3.8GB | Medium | Good         | ✅ Yes      |
-| `llama2:7b`  | ~3.8GB | Fast   | Good         | ✅ Yes      |
-| `llama2:13b` | ~7.3GB | Slow   | Better       | ❌ No       |
-| `mistral`    | ~4.1GB | Fast   | Good         | ✅ Yes      |
-| `codellama`  | ~3.8GB | Medium | Code-focused | ❌ No       |
+| `llama2`     | ~3.8GB | Medium | Good         |  Yes      |
+| `llama2:7b`  | ~3.8GB | Fast   | Good         |  Yes      |
+| `llama2:13b` | ~7.3GB | Slow   | Better       |  No       |
+| `mistral`    | ~4.1GB | Fast   | Good         |  Yes      |
+| `codellama`  | ~3.8GB | Medium | Code-focused |  No       |
 
-## 🧪 Testing
+##  Testing
 
 ### Test Connection
 
@@ -123,7 +123,7 @@ print('Ollama Status:', response.status_code)
 "
 ```
 
-## 🔍 Troubleshooting
+##  Troubleshooting
 
 ### Problem: Ollama không khởi động
 
@@ -155,7 +155,7 @@ netstat -an | findstr 11434
 ollama serve
 ```
 
-## 📈 Performance Tips
+##  Performance Tips
 
 ### 1. Model Selection
 
@@ -181,7 +181,7 @@ export OLLAMA_ORIGINS=*
 ollama run llama2 --numa --num-threads 4
 ```
 
-## 🔗 Integration with Tarot System
+##  Integration with Tarot System
 
 ### Backend Integration
 
@@ -223,14 +223,14 @@ async def generate_reading(
     return {"reading": reading}
 ```
 
-## 📚 Resources
+##  Resources
 
 - **Official Docs**: https://ollama.ai/docs
 - **Model Library**: https://ollama.ai/library
 - **API Reference**: https://github.com/ollama/ollama/blob/main/docs/api.md
 - **Community**: https://github.com/ollama/ollama/discussions
 
-## ✅ Checklist
+##  Checklist
 
 - [ ] Ollama installed
 - [ ] Service running on port 11434
@@ -239,7 +239,7 @@ async def generate_reading(
 - [ ] Python integration working
 - [ ] Tarot system integration ready
 
-## 🎯 Next Steps
+##  Next Steps
 
 1. **Test Ollama**: Chạy test script
 2. **Integrate**: Kết nối với Tarot backend

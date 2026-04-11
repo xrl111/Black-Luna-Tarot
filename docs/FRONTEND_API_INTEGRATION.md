@@ -1,4 +1,4 @@
-# 📚 Tài Liệu Dành Cho Frontend: Tích hợp Google Auth & Phân Quyền Guest/Account
+#  Tài Liệu Dành Cho Frontend: Tích hợp Google Auth & Phân Quyền Guest/Account
 
 Tài liệu này hướng dẫn cách giao tiếp với các Endpoints mới phục vụ cho mục tiêu **Giới hạn lượt dùng** và **Cá nhân hóa (Personalization)**.
 

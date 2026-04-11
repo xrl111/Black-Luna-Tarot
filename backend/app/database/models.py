@@ -1,6 +1,6 @@
-# 🗄️ Tarot System - Pydantic Models for MongoDB
+#  Tarot System - Pydantic Models for MongoDB
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, Field, EmailStr, validator
 from bson import ObjectId
 
@@ -182,7 +182,11 @@ class UserStatistics(BaseModel):
     preferred_reading_types: List[str] = Field(default=[], description="Most used reading types")
     engagement_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Overall engagement score")
 
-class User(BaseDocument):
+class User(BaseModel):
+    id: Union[int, str] = Field(..., description="User ID (Integer for Postgres)")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    
     email: EmailStr = Field(..., description="User email")
     name: str = Field(..., description="Display name")
     avatar_url: Optional[str] = Field(None, description="Profile picture URL")
@@ -291,7 +295,7 @@ class CardDrawn(BaseModel):
     
     @validator('suit')
     def validate_suit(cls, v):
-        valid_suits = ['wands', 'cups', 'swords', 'pentacles', 'major']
+        valid_suits = ['wands', 'cups', 'swords', 'pentacles', 'major', 'trump']
         if v.lower() not in valid_suits:
             raise ValueError(f'Suit must be one of: {", ".join(valid_suits)}')
         return v.lower()

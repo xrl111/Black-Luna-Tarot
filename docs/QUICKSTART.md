@@ -1,10 +1,10 @@
-# ⚡ Quick Start Guide
+#  Quick Start Guide
 
-## 🎯 **Bắt đầu nhanh trong 5 phút**
+##  **Bắt đầu nhanh trong 5 phút**
 
 Hướng dẫn cài đặt và chạy Black Luna Tarot trên máy local của bạn.
 
-## 📋 **Yêu cầu hệ thống**
+##  **Yêu cầu hệ thống**
 
 - **OS**: Windows 10+, macOS 10.15+, Ubuntu 18.04+
 - **Python**: 3.11+
@@ -12,7 +12,7 @@ Hướng dẫn cài đặt và chạy Black Luna Tarot trên máy local của b�
 - **RAM**: Tối thiểu 4GB (8GB khuyến nghị cho Ollama)
 - **Storage**: 2GB trống
 
-## 🚀 **Cài đặt nhanh**
+##  **Cài đặt nhanh**
 
 ### **Bước 1: Clone dự án**
 
@@ -81,7 +81,7 @@ cd frontend
 npm run dev
 ```
 
-## 🌐 **Truy cập ứng dụng**
+##  **Truy cập ứng dụng**
 
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:8000
@@ -90,7 +90,7 @@ npm run dev
 - **Health Check**: http://localhost:8000/health
 - **Health Check (Simple)**: http://localhost:8000/health/simple
 
-## 🎴 **Sử dụng lần đầu**
+##  **Sử dụng lần đầu**
 
 ### **1. Xem bói cơ bản**
 
@@ -112,7 +112,7 @@ npm run dev
 1. Vào trang "About" (`/about`)
 2. Đọc hướng dẫn chi tiết về hệ thống
 
-## 🔧 **Cấu hình nâng cao**
+##  **Cấu hình nâng cao**
 
 ### **Database Options**
 
@@ -181,7 +181,7 @@ RATE_LIMIT_PER_MINUTE=60
 RATE_LIMIT_PER_HOUR=1000
 ```
 
-## 🧪 **Test nhanh**
+##  **Test nhanh**
 
 ### **Test Backend**
 
@@ -223,7 +223,7 @@ curl -X POST http://localhost:8000/api/v1/ai/generate-reading \
 5. Kiểm tra trang About (`/about`)
 6. Kiểm tra responsive trên mobile (F12 → Device toolbar)
 
-## 🚨 **Troubleshooting**
+##  **Troubleshooting**
 
 ### **Lỗi thường gặp**
 
@@ -298,7 +298,7 @@ npm run dev
 F12 → Console
 ```
 
-## 📊 **Performance Tips**
+##  **Performance Tips**
 
 ### **Backend Optimization**
 
@@ -318,7 +318,7 @@ npm run build
 npm run preview
 ```
 
-## 🔒 **Security Checklist**
+##  **Security Checklist**
 
 - [ ] Đổi `SECRET_KEY` mặc định
 - [ ] Cấu hình CORS đúng domain (trong `backend/app/core/config.py`)
@@ -326,7 +326,7 @@ npm run preview
 - [ ] Sử dụng HTTPS (production)
 - [ ] Set `ENVIRONMENT=production` khi deploy
 
-## 📚 **Tài liệu tham khảo**
+##  **Tài liệu tham khảo**
 
 - [API Documentation](./API.md)
 - [Database Schema](./DATABASE.md)
@@ -339,4 +339,4 @@ npm run preview
 
 ---
 
-**🎉 Chúc mừng! Bạn đã sẵn sàng sử dụng Black Luna Tarot!**
+** Chúc mừng! Bạn đã sẵn sàng sử dụng Black Luna Tarot!**

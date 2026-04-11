@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Training Data Service
+#  Tarot System - Training Data Service
 """
 Service for collecting and processing training data for Llama3 fine-tuning
 """

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ============================================================================
-# 🎯 Black Luna Tarot — E2E Pipeline Verification Script
+#  Black Luna Tarot — E2E Pipeline Verification Script
 # ============================================================================
 # Kiểm tra toàn bộ luồng: API → Kafka → Spark → HDFS → Hive
 #
@@ -23,7 +23,7 @@ from datetime import datetime
 try:
     import httpx
 except ImportError:
-    print("❌ Missing dependency: pip install httpx")
+    print(" Missing dependency: pip install httpx")
     sys.exit(1)
 
 
@@ -44,7 +44,7 @@ class PipelineTest:
         self.reading_id = None
 
     def _log(self, step: str, status: str, detail: str = ""):
-        icon = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
+        icon = "" if status == "PASS" else "" if status == "FAIL" else ""
         msg = f"{icon} [{step}] {status}: {detail}"
         print(msg)
         self.results.append({"step": step, "status": status, "detail": detail})
@@ -246,7 +246,7 @@ class PipelineTest:
     async def run_all(self):
         """Run all pipeline tests"""
         print("=" * 70)
-        print("🎯 Black Luna Tarot — E2E Pipeline Verification")
+        print(" Black Luna Tarot — E2E Pipeline Verification")
         print(f"   Time: {datetime.now().isoformat()}")
         print("=" * 70)
         print()
@@ -257,7 +257,7 @@ class PipelineTest:
         print()
 
         # Wait a moment for Kafka to process
-        print("⏳ Waiting 3 seconds for event propagation...")
+        print(" Waiting 3 seconds for event propagation...")
         await asyncio.sleep(3)
 
         await self.test_kafka_message()
@@ -276,12 +276,12 @@ class PipelineTest:
         failed = sum(1 for r in self.results if r["status"] == "FAIL")
         total = len(self.results)
 
-        print(f"📊 Results: {passed} PASS / {warned} WARN / {failed} FAIL (total: {total})")
+        print(f" Results: {passed} PASS / {warned} WARN / {failed} FAIL (total: {total})")
 
         if failed == 0:
-            print("🎉 Pipeline verification PASSED!")
+            print(" Pipeline verification PASSED!")
         else:
-            print("⚠️  Some checks failed — review output above.")
+            print("  Some checks failed — review output above.")
         print("=" * 70)
 
         return failed == 0

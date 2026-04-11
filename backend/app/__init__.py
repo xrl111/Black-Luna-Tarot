@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Backend Application
+#  Tarot System - Backend Application
 """
 Tarot AI Reading System Backend
 FastAPI application with extensible architecture

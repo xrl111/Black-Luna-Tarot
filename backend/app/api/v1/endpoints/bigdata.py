@@ -1,4 +1,4 @@
-# 🎯 Black Luna Tarot — Big Data API Endpoints
+#  Black Luna Tarot — Big Data API Endpoints
 """
 API endpoints for Big Data pipeline monitoring, stats, and DLQ management.
 Endpoints:

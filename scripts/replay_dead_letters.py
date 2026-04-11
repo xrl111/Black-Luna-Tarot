@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ============================================================================
-# 🎯 Black Luna Tarot — Dead Letter Queue Replay Script
+#  Black Luna Tarot — Dead Letter Queue Replay Script
 # ============================================================================
 # Replay failed Kafka events from MongoDB DLQ back to Kafka.
 #
@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 try:
     from pymongo import MongoClient
 except ImportError:
-    print("❌ Missing dependency: pip install pymongo")
+    print(" Missing dependency: pip install pymongo")
     sys.exit(1)
 
 
@@ -47,7 +47,7 @@ def parse_args():
 async def replay_events(args):
     """Replay DLQ events to Kafka"""
     print("=" * 60)
-    print("🎯 Dead Letter Queue Replay")
+    print(" Dead Letter Queue Replay")
     print(f"   MongoDB: {args.mongo_uri}/{args.db_name}")
     print(f"   Kafka:   {args.kafka_bootstrap} → {args.kafka_topic}")
     print(f"   Limit:   {args.limit}")
@@ -63,11 +63,11 @@ async def replay_events(args):
     pending = list(dlq_col.find({"retried": False}).sort("created_at", 1).limit(args.limit))
 
     if not pending:
-        print("\n✅ No pending events in Dead Letter Queue!")
+        print("\n No pending events in Dead Letter Queue!")
         client.close()
         return
 
-    print(f"\n📋 Found {len(pending)} pending events:\n")
+    print(f"\n Found {len(pending)} pending events:\n")
 
     for i, event in enumerate(pending, 1):
         payload = event.get("payload", {})
@@ -83,7 +83,7 @@ async def replay_events(args):
         print()
 
     if args.dry_run:
-        print("🔍 Dry-run mode — no events sent to Kafka.")
+        print(" Dry-run mode — no events sent to Kafka.")
         client.close()
         return
 
@@ -124,7 +124,7 @@ async def replay_events(args):
                     }
                 )
                 replayed += 1
-                print(f"  ✅ Replayed: {payload.get('event_id', '?')}")
+                print(f"   Replayed: {payload.get('event_id', '?')}")
 
             except Exception as e:
                 failed += 1
@@ -132,16 +132,16 @@ async def replay_events(args):
                     {"_id": event["_id"]},
                     {"$inc": {"retry_count": 1}}
                 )
-                print(f"  ❌ Failed: {payload.get('event_id', '?')} — {e}")
+                print(f"   Failed: {payload.get('event_id', '?')} — {e}")
 
         await producer.stop()
 
-        print(f"\n📊 Results: {replayed} replayed, {failed} failed")
+        print(f"\n Results: {replayed} replayed, {failed} failed")
 
     except ImportError:
-        print("❌ aiokafka not installed. Run: pip install aiokafka")
+        print(" aiokafka not installed. Run: pip install aiokafka")
     except Exception as e:
-        print(f"❌ Kafka connection failed: {e}")
+        print(f" Kafka connection failed: {e}")
 
     client.close()
 

@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Ollama AI Service
+#  Tarot System - Ollama AI Service
 """
 Ollama integration service for AI-powered tarot readings
 """

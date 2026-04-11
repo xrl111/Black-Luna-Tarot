@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Reading Service
+#  Tarot System - Reading Service
 """
 Service layer for tarot reading operations
 """
@@ -42,7 +42,7 @@ class ReadingService:
                     await producer.emit_reading_event(reading)
                 except Exception as kafka_err:
                     logger.warning(
-                        "⚠️ Kafka event emission failed (non-blocking)",
+                        " Kafka event emission failed (non-blocking)",
                         reading_id=str(reading.id),
                         error=str(kafka_err),
                     )

@@ -1,4 +1,4 @@
-# 🎯 Tarot System - User Service
+#  Tarot System - User Service
 """
 Service layer for user management operations
 """

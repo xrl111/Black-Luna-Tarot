@@ -1,4 +1,4 @@
-# 🎯 Tarot System - System Management Endpoints
+#  Tarot System - System Management Endpoints
 """
 System management and monitoring endpoints
 """

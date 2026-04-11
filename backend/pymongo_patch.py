@@ -26,7 +26,7 @@ def patch_nulls():
             collection.update_one({"_id": card["_id"]}, {"$set": update_fields})
             updated_count += 1
             
-    print(f"✅ Successfully patched {updated_count} cards out of {len(cards)}")
+    print(f" Successfully patched {updated_count} cards out of {len(cards)}")
     client.close()
 
 if __name__ == "__main__":

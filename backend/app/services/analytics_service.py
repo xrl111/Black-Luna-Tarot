@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Analytics Service
+#  Tarot System - Analytics Service
 """
 Service layer for analytics and reporting
 """

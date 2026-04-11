@@ -1,4 +1,4 @@
-# 🎯 Tarot System - AI Service API Endpoints
+#  Tarot System - AI Service API Endpoints
 """
 API endpoints for AI service integration
 """

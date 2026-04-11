@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Session Service
+#  Tarot System - Session Service
 """
 Service layer for session management operations
 """

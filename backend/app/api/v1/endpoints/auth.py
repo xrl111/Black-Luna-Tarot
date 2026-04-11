@@ -11,14 +11,17 @@ from app.database.models import GoogleAuthPayload, User, UserPreferences
 
 router = APIRouter()
 
-async def get_users_collection() -> AsyncIOMotorCollection:
-    db = get_database()
-    return db["users"]
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.core.postgres import get_pg_db
+from app.database.pg_models import PGUser
+
+router = APIRouter()
 
 @router.post("/google", response_model=Dict[str, Any])
 async def google_auth(
     payload: GoogleAuthPayload,
-    collection: AsyncIOMotorCollection = Depends(get_users_collection)
+    session: AsyncSession = Depends(get_pg_db)
 ):
     """
     Authenticate a user using Google OAuth2 ID Token.
@@ -58,31 +61,28 @@ async def google_auth(
             detail="Email not provided by Google"
         )
         
-    # Check if user exists
-    user_doc = await collection.find_one({"email": email})
+    # Check if user exists in Postgres
+    result = await session.execute(select(PGUser).where(PGUser.email == email))
+    user_doc = result.scalar_one_or_none()
     
     if user_doc:
         # User exists, update auth info (in case avatar changed etc)
-        await collection.update_one(
-            {"email": email},
-            {"$set": {
-                "name": user_info.get("name", user_doc.get("name")),
-                "avatar_url": user_info.get("picture", user_doc.get("avatar_url")),
-                "auth_provider_id": user_info.get("sub")
-            }}
-        )
+        user_doc.name = user_info.get("name", user_doc.name)
+        user_doc.avatar_url = user_info.get("picture", user_doc.avatar_url)
+        user_doc.auth_provider_id = user_info.get("sub")
+        await session.commit()
     else:
-        # New User
-        new_user = User(
+        # New User in Postgres
+        new_user = PGUser(
             email=email,
             name=user_info.get("name", email.split("@")[0]),
             avatar_url=user_info.get("picture"),
             auth_provider="google",
-            auth_provider_id=user_info.get("sub"),
-            preferences=UserPreferences() # Default empty preferences ready for Personalization
+            auth_provider_id=user_info.get("sub")
         )
-        # Insert to DB
-        await collection.insert_one(new_user.dict(by_alias=True, exclude_none=True))
+        session.add(new_user)
+        await session.commit()
+        await session.refresh(new_user)
     
     # Create our own JWT access token
     # We use email as the subject for simplicity

@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Database Package
+#  Tarot System - Database Package
 """
 Database models and utilities for the Tarot AI Reading System
 """

@@ -1,6 +1,6 @@
-# 📚 API Documentation
+#  API Documentation
 
-## 🎯 **Tổng quan**
+##  **Tổng quan**
 
 Black Luna Tarot API được xây dựng với FastAPI, cung cấp các endpoints để:
 
@@ -9,7 +9,7 @@ Black Luna Tarot API được xây dựng với FastAPI, cung cấp các endpoin
 - Tích hợp AI service (generate & streaming)
 - Kiểm tra system health & connections
 
-## 🔗 **Base URL**
+##  **Base URL**
 
 ```
 Development: http://localhost:8000
@@ -17,7 +17,7 @@ Production:  https://your-api-domain.com
 API Version: /api/v1
 ```
 
-## 📖 **Interactive API Docs**
+##  **Interactive API Docs**
 
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
@@ -27,7 +27,7 @@ API Version: /api/v1
 
 ---
 
-## 📋 **Endpoints**
+##  **Endpoints**
 
 ### **1. Health Check (Root)**
 
@@ -351,7 +351,7 @@ Health check chi tiết với thông tin đầy đủ các service.
 
 ---
 
-## 🚨 **Error Responses**
+##  **Error Responses**
 
 Tất cả errors trả về format JSON:
 
@@ -387,12 +387,12 @@ Tất cả errors trả về format JSON:
 }
 ```
 
-## 📊 **Rate Limiting**
+##  **Rate Limiting**
 
 - **Default**: 60 requests/minute, 1000 requests/hour
 - Rate limiting có thể bật/tắt qua `ENABLE_RATE_LIMITING` env var
 
-## 🔒 **Security**
+##  **Security**
 
 - **CORS**: Configurable via `CORS_ORIGINS` env var
 - **Trusted Hosts**: Configurable via `TRUSTED_HOSTS` env var
@@ -401,14 +401,14 @@ Tất cả errors trả về format JSON:
 - **Cache Control**: Toggleable via `ENABLE_CACHE_HEADERS`
 - **Input Validation**: Pydantic models cho tất cả request/response
 
-## 📈 **Monitoring**
+##  **Monitoring**
 
 - **Health Checks**: `/health` (full) và `/health/simple`
 - **System Connections**: `/api/v1/system/connections`
 - **Logging**: Structured JSON logs via `structlog`
 - **Error Tracking**: Sentry integration (optional, qua `SENTRY_DSN`)
 
-## 🧪 **Testing**
+##  **Testing**
 
 ### **Test với cURL**
 

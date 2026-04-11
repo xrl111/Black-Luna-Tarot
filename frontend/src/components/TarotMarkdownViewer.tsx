@@ -42,7 +42,7 @@ const TarotMarkdownViewer: React.FC<TarotMarkdownViewerProps> = ({ content, clas
           h3: ({ node, children, ...props }) => {
             // Check if it's a card header (usually starts with a number or contains 'Quá khứ', etc.)
             const text = String(children);
-            const isCard = text.match(/1️⃣|2️⃣|3️⃣|4️⃣|5️⃣/) || text.includes('Quá khứ') || text.includes('Hiện tại') || text.includes('Tương lai');
+            const isCard = text.match(/||||/) || text.includes('Quá khứ') || text.includes('Hiện tại') || text.includes('Tương lai');
             
             return (
               <div className={cn(

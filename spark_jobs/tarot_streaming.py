@@ -1,5 +1,5 @@
 # ============================================================================
-# 🎯 Black Luna Tarot — Spark Structured Streaming Pipeline
+#  Black Luna Tarot — Spark Structured Streaming Pipeline
 # ============================================================================
 # Đọc event từ 2 nguồn Kafka:
 #   1. topic 'tarot-events'       → Reading events (từ App Producer)
@@ -51,8 +51,8 @@ def create_spark_session():
         .enableHiveSupport() \
         .getOrCreate()
 
-    spark.sparkContext.setLogLevel("WARN")
-    logger.info("✅ SparkSession created successfully")
+    spark.sparkContext.setLogLevel("ERROR")
+    logger.info(" SparkSession created successfully (Log Level: ERROR)")
     return spark
 
 
@@ -172,7 +172,7 @@ def read_reading_stream(spark):
     # Cho phép dữ liệu đến trễ tối đa 10 phút trước khi bị loại
     parsed = parsed.withWatermark("kafka_timestamp", "10 minutes")
 
-    logger.info("✅ Reading stream connected to 'tarot-events' (watermark: 10 min)")
+    logger.info(" Reading stream connected to 'tarot-events' (watermark: 10 min)")
     return parsed
 
 
@@ -205,11 +205,11 @@ def read_users_stream(spark):
             .orderBy(col("__source_ts_ms").desc()) \
             .dropDuplicates(["id"])
 
-        logger.info(f"✅ Users loaded from CDC topic: {users_df.count()} records")
+        logger.info(f" Users loaded from CDC topic: {users_df.count()} records")
         return users_df
 
     except Exception as e:
-        logger.warning(f"⚠️ Cannot read users CDC topic (may not exist yet): {e}")
+        logger.warning(f" Cannot read users CDC topic (may not exist yet): {e}")
         # Return empty DataFrame with schema
         return spark.createDataFrame([], user_cdc_schema)
 
@@ -278,7 +278,7 @@ def flatten_and_explode(parsed_stream):
         ) \
         .drop("cards", "card")
 
-    logger.info("✅ Flatten + Explode cards completed")
+    logger.info(" Flatten + Explode cards completed")
     return exploded
 
 
@@ -297,7 +297,7 @@ def enrich_data(exploded_df):
             when(col("orientation") == "reversed", True).otherwise(False)
         )
 
-    logger.info("✅ Derived columns added")
+    logger.info(" Derived columns added")
     return enriched
 
 
@@ -324,7 +324,7 @@ def validate_data_quality(df: DataFrame) -> DataFrame:
     # Deduplicate by event_id + card_id (handles Kafka retries)
     deduped = valid_df.dropDuplicates(["event_id", "card_id"])
 
-    logger.info("✅ Data quality validation applied (null filter + dedup)")
+    logger.info(" Data quality validation applied (null filter + dedup)")
     return deduped
 
 
@@ -343,7 +343,7 @@ def join_with_users(enriched_df, users_df):
             .withColumn("user_cultural_background", lit(None).cast(StringType())) \
             .withColumn("user_belief_system", lit(None).cast(StringType())) \
             .withColumn("user_reading_frequency", lit(None).cast(StringType()))
-        logger.warning("⚠️ No user data available, adding NULL columns")
+        logger.warning(" No user data available, adding NULL columns")
         return result
 
     # Rename user columns to avoid ambiguity
@@ -361,7 +361,7 @@ def join_with_users(enriched_df, users_df):
         "left"
     ).drop("pg_user_id")
 
-    logger.info("✅ JOIN with user profiles completed")
+    logger.info(" JOIN with user profiles completed")
     return result
 
 
@@ -382,10 +382,10 @@ def write_to_hdfs(final_df):
         .option("checkpointLocation", "hdfs://namenode:9000/checkpoints/tarot_streaming") \
         .partitionBy("reading_date") \
         .outputMode("append") \
-        .trigger(processingTime="30 seconds") \
+        .trigger(processingTime="5 seconds") \
         .start()
 
-    logger.info("✅ HDFS Parquet sink started (trigger: every 30 seconds)")
+    logger.info(" HDFS Parquet sink started (trigger: every 30 seconds)")
     return query
 
 
@@ -432,10 +432,10 @@ def write_daily_aggregations(enriched_df):
         .option("path", "hdfs://namenode:9000/data/tarot/agg_daily_stats") \
         .option("checkpointLocation", "hdfs://namenode:9000/checkpoints/daily_agg") \
         .outputMode("update") \
-        .trigger(processingTime="5 minutes") \
+        .trigger(processingTime="30 seconds") \
         .start()
 
-    logger.info("✅ Daily aggregation stream started (trigger: every 5 minutes)")
+    logger.info(" Daily aggregation stream started (trigger: every 5 minutes)")
     return query
 
 
@@ -444,15 +444,22 @@ def write_daily_aggregations(enriched_df):
 # ============================================================================
 def write_to_console(final_df):
     """Write to console for debugging"""
-    query = final_df.writeStream \
+    # Chọn ra các cột quan trọng nhất và hiện theo chiều dọc (vertical) để dễ đọc trên terminal
+    debug_df = final_df.select(
+        "reading_id", "user_id", "user_experience_level", "user_belief_system", 
+        "reading_type", "question", "card_name", "position", "orientation"
+    )
+    
+    query = debug_df.writeStream \
         .format("console") \
-        .option("truncate", True) \
+        .option("truncate", False) \
+        .option("vertical", True) \
         .option("numRows", 5) \
         .outputMode("append") \
-        .trigger(processingTime="30 seconds") \
+        .trigger(processingTime="5 seconds") \
         .start()
 
-    logger.info("✅ Console sink started (debug mode)")
+    logger.info(" Console sink started (debug mode)")
     return query
 
 
@@ -461,7 +468,7 @@ def write_to_console(final_df):
 # ============================================================================
 def main():
     print("=" * 70)
-    print("🎯 Black Luna Tarot — Spark Streaming Pipeline v2.0")
+    print(" Black Luna Tarot — Spark Streaming Pipeline v2.0")
     print("   Features: Watermark, Data Quality, Aggregation Stream")
     print("=" * 70)
 
@@ -495,7 +502,7 @@ def main():
     try:
         agg_query = write_daily_aggregations(final_df)
     except Exception as e:
-        logger.warning(f"⚠️ Aggregation stream failed to start: {e}")
+        logger.warning(f" Aggregation stream failed to start: {e}")
         agg_query = None
 
     # Bước 9: Ghi ra console (debug)
@@ -503,13 +510,13 @@ def main():
 
     print("")
     print("=" * 70)
-    print("🚀 Pipeline đang chạy! Chờ events từ Kafka...")
+    print(" Pipeline đang chạy! Chờ events từ Kafka...")
     print("   - Reading events:  topic 'tarot-events' (watermark: 10min)")
     print("   - User CDC:        topic 'dbserver1.public.users'")
     print("   - Fact output:     hdfs://namenode:9000/data/tarot/fact_card_draws/")
     print("   - Agg output:      hdfs://namenode:9000/data/tarot/agg_daily_stats/")
-    print("   - Fact trigger:    mỗi 30 giây")
-    print("   - Agg trigger:     mỗi 5 phút")
+    print("   - Fact trigger:    mỗi 5 giây")
+    print("   - Agg trigger:     mỗi 30 giây")
     print("   - Data quality:    null filter + dedup")
     print("   - Nhấn Ctrl+C để dừng.")
     print("=" * 70)

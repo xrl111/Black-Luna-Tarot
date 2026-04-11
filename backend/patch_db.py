@@ -33,7 +33,7 @@ async def patch_nulls():
                 await collection.update_one({"_id": card["_id"]}, {"$set": update_fields})
                 updated_count += 1
                 
-        print(f"✅ Successfully patched {updated_count} cards out of {len(cards)}")
+        print(f" Successfully patched {updated_count} cards out of {len(cards)}")
         
     except Exception as e:
         print(f"Error: {e}")

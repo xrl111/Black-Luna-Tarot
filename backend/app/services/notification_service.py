@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Notification Service
+#  Tarot System - Notification Service
 """
 Service layer for notification management
 """

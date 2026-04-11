@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Kafka Event Producer
+#  Tarot System - Kafka Event Producer
 """
 Kafka producer for emitting tarot reading events to the Big Data pipeline.
 - Singleton pattern via module-level instance
@@ -66,13 +66,13 @@ class TarotKafkaProducer:
             self._is_running = True
             self._metrics["started_at"] = datetime.now(timezone.utc).isoformat()
             logger.info(
-                "🚀 Kafka producer started",
+                " Kafka producer started",
                 bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
                 topic=settings.KAFKA_TOPIC_READINGS,
                 idempotence=True,
             )
         except Exception as e:
-            logger.error("❌ Failed to start Kafka producer", error=str(e))
+            logger.error(" Failed to start Kafka producer", error=str(e))
             self._is_running = False
 
     async def stop(self):
@@ -125,9 +125,9 @@ class TarotKafkaProducer:
                     "retry_count": 0,
                 })
                 self._metrics["dlq_count"] += 1
-                logger.info("📬 Event saved to Dead Letter Queue", event_id=payload.get("event_id"))
+                logger.info(" Event saved to Dead Letter Queue", event_id=payload.get("event_id"))
         except Exception as dlq_err:
-            logger.error("❌ Failed to save to DLQ", error=str(dlq_err))
+            logger.error(" Failed to save to DLQ", error=str(dlq_err))
 
     # ── Generic Event Emission ───────────────────────────────────────────────
 
@@ -162,7 +162,7 @@ class TarotKafkaProducer:
             self._metrics["last_event_at"] = datetime.now(timezone.utc).isoformat()
 
             logger.info(
-                "✅ Kafka event emitted",
+                " Kafka event emitted",
                 event_id=payload.get("event_id"),
                 event_type=event_type,
                 topic=settings.KAFKA_TOPIC_READINGS,
@@ -178,7 +178,7 @@ class TarotKafkaProducer:
                 "event_type": event_type,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             })
-            logger.warning("⚠️ Kafka send failed (non-blocking)", error=str(e), event_type=event_type)
+            logger.warning(" Kafka send failed (non-blocking)", error=str(e), event_type=event_type)
             # Save to Dead Letter Queue
             await self._save_to_dead_letter(payload, str(e))
             return False

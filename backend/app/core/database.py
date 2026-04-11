@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Database Connection
+#  Tarot System - Database Connection
 """
 MongoDB database connection and initialization
 """

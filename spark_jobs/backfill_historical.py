@@ -1,5 +1,5 @@
 # ============================================================================
-# 🎯 Black Luna Tarot — Batch Backfill Job
+#  Black Luna Tarot — Batch Backfill Job
 # ============================================================================
 # Mục đích: Load dữ liệu lịch sử từ MongoDB vào HDFS Parquet.
 # Dùng khi: (1) Migration dữ liệu cũ, (2) Re-populate sau khi reset HDFS
@@ -58,7 +58,7 @@ def create_spark_session():
         .getOrCreate()
 
     spark.sparkContext.setLogLevel("WARN")
-    logger.info("✅ SparkSession created for backfill job")
+    logger.info(" SparkSession created for backfill job")
     return spark
 
 
@@ -79,12 +79,12 @@ def read_from_mongodb(spark, mongo_uri, limit=0):
             reader = reader.option("pipeline", f'[{{"$limit": {limit}}}]')
 
         df = reader.load()
-        logger.info(f"✅ Loaded {df.count()} readings from MongoDB via Spark connector")
+        logger.info(f" Loaded {df.count()} readings from MongoDB via Spark connector")
         return df
 
     except Exception as e:
-        logger.warning(f"⚠️ Spark MongoDB connector failed: {e}")
-        logger.info("📋 Falling back to pymongo direct read...")
+        logger.warning(f" Spark MongoDB connector failed: {e}")
+        logger.info(" Falling back to pymongo direct read...")
         return read_from_mongodb_pymongo(spark, mongo_uri, limit)
 
 
@@ -109,10 +109,10 @@ def read_from_mongodb_pymongo(spark, mongo_uri, limit=0):
         readings = list(cursor)
         client.close()
 
-        logger.info(f"✅ Loaded {len(readings)} readings from MongoDB via pymongo")
+        logger.info(f" Loaded {len(readings)} readings from MongoDB via pymongo")
 
         if not readings:
-            logger.warning("⚠️ No readings found in MongoDB")
+            logger.warning(" No readings found in MongoDB")
             return None
 
         # Convert to flat records for Spark
@@ -243,11 +243,11 @@ def read_from_mongodb_pymongo(spark, mongo_uri, limit=0):
         ])
 
         df = spark.createDataFrame(flat_records, schema)
-        logger.info(f"✅ Created Spark DataFrame with {df.count()} rows")
+        logger.info(f" Created Spark DataFrame with {df.count()} rows")
         return df
 
     except Exception as e:
-        logger.error(f"❌ Failed to read from MongoDB: {e}")
+        logger.error(f" Failed to read from MongoDB: {e}")
         return None
 
 
@@ -296,7 +296,7 @@ def _analyze_question(question: str) -> dict:
 
 def write_to_hdfs(df, output_path):
     """Write DataFrame to HDFS as Parquet, partitioned by reading_date"""
-    logger.info(f"📝 Writing {df.count()} rows to {output_path}")
+    logger.info(f" Writing {df.count()} rows to {output_path}")
 
     df.write \
         .format("parquet") \
@@ -305,12 +305,12 @@ def write_to_hdfs(df, output_path):
         .option("compression", "snappy") \
         .save(output_path)
 
-    logger.info(f"✅ Successfully wrote data to {output_path}")
+    logger.info(f" Successfully wrote data to {output_path}")
 
 
 def main():
     print("=" * 70)
-    print("🎯 Black Luna Tarot — Batch Backfill Job")
+    print(" Black Luna Tarot — Batch Backfill Job")
     print("   MongoDB → HDFS Parquet (bypass Kafka)")
     print("=" * 70)
 
@@ -323,12 +323,12 @@ def main():
     df = read_from_mongodb_pymongo(spark, args.mongo_uri, args.limit)
 
     if df is None or df.rdd.isEmpty():
-        logger.warning("⚠️ No data to backfill. Exiting.")
+        logger.warning(" No data to backfill. Exiting.")
         spark.stop()
         sys.exit(0)
 
     total_rows = df.count()
-    logger.info(f"📊 Total rows to backfill: {total_rows}")
+    logger.info(f" Total rows to backfill: {total_rows}")
 
     # Write to HDFS
     write_to_hdfs(df, args.output_path)
@@ -336,7 +336,7 @@ def main():
     # Summary
     print("")
     print("=" * 70)
-    print(f"✅ Backfill completed!")
+    print(f" Backfill completed!")
     print(f"   - Total rows written: {total_rows}")
     print(f"   - Output path: {args.output_path}")
     print(f"   - Format: Parquet (Snappy compression)")

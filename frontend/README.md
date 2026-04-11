@@ -1,9 +1,9 @@
-# 🎴 Black Luna Tarot - Frontend
+#  Black Luna Tarot - Frontend
 
 Dự án giao diện React dành cho hệ thống Black Luna Tarot AI. 
 Giao diện được xây dựng bằng Vite, React 19, TypeScript và Shadcn/UI (Tailwind CSS).
 
-## 🌟 Tính năng Giao Diện
+##  Tính năng Giao Diện
 
 - **Giao diện trải nghiệm thân thiện mượt mà**: Hiệu ứng lật thẻ bài, chọn bài được animete bằng `framer-motion`.
 - **Text Streaming**: Hiển thị kết quả AI Streaming theo thời gian thực (Giống ChatGPT).
@@ -12,7 +12,7 @@ Giao diện được xây dựng bằng Vite, React 19, TypeScript và Shadcn/UI
 - **Quản lý Persona (Personalization)**: Trang Settings riêng để định hình phong cách đọc Tarot của AI.
 - **Xử lý Error State & Rate Limits**: Tự động hiển thị tin nhắn Toast hoặc Modal khi User bị báo lỗi mã `429 Too Many Requests` (hết lượt dùng).
 
-## 🏗️ Kiến trúc thư mục Frontend
+##  Kiến trúc thư mục Frontend
 
 ```
 frontend/
@@ -29,7 +29,7 @@ frontend/
 └── package.json             # Khai báo thư viện (npm).
 ```
 
-## 🚀 Cài đặt & Chạy Local
+##  Cài đặt & Chạy Local
 
 ### 1. Cài đặt thư viện
 
@@ -62,7 +62,7 @@ npm run dev
 
 Project sẽ thường xuyên chạy tại `http://localhost:5173`.
 
-## 🛠️ Biên dịch cho Production
+##  Biên dịch cho Production
 
 Khi ứng dụng đã sẵn sàng triển khai lên VPS hoặc các nền tảng như Vercel, Netlify, Cloudflare Pages:
 
@@ -72,7 +72,7 @@ npm run build
 
 Biên dịch sẽ xuất ra thư mục `dist/`. Thư mục này là các file tĩnh (HTML, CSS, JS) hoàn toàn có thể được phục vụ bằng Nginx hoặc các loại Web Server Caching.
 
-## 📦 Kiến trúc API Interceptor (Bảo mật JWT)
+##  Kiến trúc API Interceptor (Bảo mật JWT)
 
 Trong file `src/lib/api.ts`:
 - Tất cả các thao tác GET / POST gửi lên Backend (url: `/api/v1/...`) sẽ được axios tự động `Interceptor` thêm chuỗi Header: `Authorization: Bearer <token_tu_localstorage>`.

@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Configuration Management
+#  Tarot System - Configuration Management
 """
 Application configuration with environment variables support
 """
@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     # Database
     MONGODB_URI: str = "mongodb://localhost:27017"
     DATABASE_NAME: str = "tarot_system"
+    POSTGRES_URI: str = "postgresql+asyncpg://admin:admin123@localhost:5433/app_db"
     
     # Security & Auth
     SECRET_KEY: str = "your-super-secret-key-for-tarot-system-development-only-change-in-production"

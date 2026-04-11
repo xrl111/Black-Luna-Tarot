@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Main Application
+#  Tarot System - Main Application
 """
 FastAPI application entry point with extensible architecture
 """
@@ -45,7 +45,7 @@ logger = structlog.get_logger()
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
-    logger.info("🎯 Starting Tarot AI Backend", version=settings.VERSION)
+    logger.info(" Starting Tarot AI Backend", version=settings.VERSION)
     
     # Initialize database
     await init_db()
@@ -61,16 +61,16 @@ async def lifespan(app: FastAPI):
             kafka_producer = get_kafka_producer()
             await kafka_producer.start()
         except Exception as e:
-            logger.warning("⚠️ Kafka producer failed to start (non-blocking)", error=str(e))
+            logger.warning(" Kafka producer failed to start (non-blocking)", error=str(e))
     
     # Check and log all service connections
     try:
         connection_summary = await log_connection_status(detailed=True)
         if connection_summary["all_connected"]:
-            logger.info("🚀 All services are ready - Application startup complete!")
+            logger.info(" All services are ready - Application startup complete!")
         else:
-            logger.warning("⚠️  Some services are unavailable - Application started with limited functionality")
-            logger.info("💡 Check service configurations and ensure MongoDB and Ollama are running")
+            logger.warning("  Some services are unavailable - Application started with limited functionality")
+            logger.info(" Check service configurations and ensure MongoDB and Ollama are running")
     except Exception as e:
         logger.error("Failed to check service connections during startup", error=str(e))
     
@@ -99,7 +99,7 @@ def create_application() -> FastAPI:
         title=settings.PROJECT_NAME,
         lifespan=lifespan,
         description="""
-        # 🎯 Tarot AI System API
+        #  Tarot AI System API
         
         ## Overview
         A comprehensive AI-powered tarot reading system with advanced features for personal growth and spiritual guidance. This system includes a complete 78-card Rider-Waite tarot deck with Vietnamese translations.

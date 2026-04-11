@@ -1,6 +1,6 @@
-# 🗄️ Database Schema Documentation
+#  Database Schema Documentation
 
-## 🎯 **Tổng quan**
+##  **Tổng quan**
 
 Black Luna Tarot sử dụng MongoDB làm database chính, với Motor (async driver) cho Python. Schema được thiết kế cho:
 
@@ -9,7 +9,7 @@ Black Luna Tarot sử dụng MongoDB làm database chính, với Motor (async dr
 - Hỗ trợ 78 lá bài Tarot đầy đủ (Major & Minor Arcana)
 - Lưu trữ readings và AI training data
 
-## 🏗️ **Kiến trúc Database**
+##  **Kiến trúc Database**
 
 ```
 MongoDB (Local hoặc Atlas Free Tier)
@@ -21,7 +21,7 @@ MongoDB (Local hoặc Atlas Free Tier)
 │   └── Collection: ai_training_data  ← Dữ liệu training AI
 ```
 
-## 📊 **Collections Schema**
+##  **Collections Schema**
 
 ### **1. tarot_cards**
 
@@ -278,7 +278,7 @@ db.ai_training_data.createIndex({ quality_score: -1 });
 
 ---
 
-## 🔍 **Query Examples**
+##  **Query Examples**
 
 ### **1. Lấy bài Tarot theo suit**
 
@@ -336,7 +336,7 @@ db.readings.aggregate([
 
 ---
 
-## 📈 **Performance Optimization**
+##  **Performance Optimization**
 
 ### **Index Strategy**
 
@@ -354,7 +354,7 @@ db.readings.find({}, { question: 1, created_at: 1 });
 db.readings.find().limit(100);
 ```
 
-## 📊 **Backup & Recovery**
+##  **Backup & Recovery**
 
 ### **Automated Backups**
 
@@ -371,7 +371,7 @@ mongoexport --db tarot_system --collection tarot_cards --out tarot_cards.json
 mongoexport --db tarot_system --collection readings --out readings.json
 ```
 
-## 🔧 **Maintenance**
+##  **Maintenance**
 
 ### **Data Cleanup**
 
@@ -382,7 +382,7 @@ db.sessions.deleteMany({
 });
 ```
 
-## 📚 **Resources**
+##  **Resources**
 
 - [MongoDB Documentation](https://docs.mongodb.com)
 - [MongoDB Atlas](https://cloud.mongodb.com)

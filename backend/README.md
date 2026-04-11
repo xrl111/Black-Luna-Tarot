@@ -1,12 +1,12 @@
-# 🎯 Tarot System - Backend
+#  Tarot System - Backend
 
-## 📋 Overview
+##  Overview
 
 FastAPI backend for the Tarot AI Reading System with an extensible architecture. 
 Now powered by a **Big Data Pipeline** (Kafka, Hive), **Google OAuth2 JWT Security**, and a robust **Rate Limiting Service**.
 
 
-## 🏗️ Architecture
+##  Architecture
 
 ### **Extensible Design Pattern**
 
@@ -43,7 +43,7 @@ backend/
 └── README.md
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1. **Environment Setup**
 
@@ -97,7 +97,7 @@ ENVIRONMENT=production DEBUG=false uvicorn app.main:app --host 0.0.0.0 --port 80
 - In production, docs are hidden by default. Set `SHOW_DOCS_IN_PROD=true` to expose them.
 - **Health Check**: http://localhost:8000/health
 
-## 🏗️ Architecture Principles
+##  Architecture Principles
 
 ### **1. Layered Architecture**
 
@@ -131,7 +131,7 @@ async def get_tarot_cards(
 - **Configuration Driven**: Environment-based settings
 - **Middleware Stack**: Customizable request processing
 
-## 📊 API Endpoints
+##  API Endpoints
 
 ### **Tarot Cards**
 
@@ -168,7 +168,7 @@ async def get_tarot_cards(
 - `GET /api/v1/analytics/overview` - Get analytics overview
 - `GET /api/v1/analytics/user-engagement` - Get engagement metrics
 
-## 🔧 Configuration
+##  Configuration
 
 ### **Environment-Specific Settings**
 
@@ -193,7 +193,7 @@ ENABLE_AI_TRAINING=true
 ENABLE_ANALYTICS=true
 ```
 
-## 🔐 Security Features
+##  Security Features
 
 ### **1. Authentication & Authorization (Tiered System)**
 
@@ -220,7 +220,7 @@ ENABLE_ANALYTICS=true
 - Error tracking
 - Performance monitoring
 
-## 🧪 Testing
+##  Testing
 
 ### **Run Tests**
 
@@ -249,7 +249,7 @@ tests/
 └── test_integration/       # Integration tests
 ```
 
-## 📈 Performance Optimization
+##  Performance Optimization
 
 ### **1. Database Optimization**
 
@@ -272,7 +272,7 @@ tests/
 - Memory usage
 - Error rates
 
-## 🚀 Deployment
+##  Deployment
 
 ### **1. Docker Deployment**
 
@@ -314,7 +314,7 @@ SECRET_KEY=your-production-secret-key
 OLLAMA_URL=http://your-ollama-instance:11434
 ```
 
-## 🔄 Extensibility
+##  Extensibility
 
 ### **Adding New Features**
 
@@ -364,7 +364,7 @@ plugins/
 └── analytics_plugin.py
 ```
 
-## 📚 Documentation
+##  Documentation
 
 ### **API Documentation**
 
@@ -380,7 +380,7 @@ plugins/
 - Architecture diagrams
 - Setup guides
 
-## 🤝 Contributing
+##  Contributing
 
 ### **Development Workflow**
 
@@ -399,7 +399,7 @@ plugins/
 - **Logging**: Structured logging with context
 - **Testing**: Minimum 80% coverage
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### **Common Issues**
 
@@ -424,7 +424,7 @@ python -c "from app.core.config import settings; print(settings.MONGODB_URI)"
 pip install -r requirements.txt --upgrade
 ```
 
-## 📞 Support
+##  Support
 
 - **Documentation**: Check `/docs` endpoint
 - **Issues**: GitHub issues
@@ -433,4 +433,4 @@ pip install -r requirements.txt --upgrade
 
 ---
 
-**Built with ❤️ for the Tarot AI Reading System**
+**Built with  for the Tarot AI Reading System**

@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Readings API Endpoints
+#  Tarot System - Readings API Endpoints
 """
 API endpoints for tarot readings
 """
@@ -28,10 +28,10 @@ async def create_reading(
     Create a new tarot reading (With Rate Limiting and Guest Restrictions)
     """
     try:
-        # Rate Limiting Logic
+        # Rate Limiting Logic (REMOVED: saving should not consume quota when generating already did)
         is_guest = current_user is None
-        identifier = request.client.host if is_guest else str(current_user.id)
-        await check_and_increment_quota(identifier, is_guest=is_guest)
+        # identifier = request.client.host if is_guest else str(current_user.id)
+        # await check_and_increment_quota(identifier, is_guest=is_guest)
 
         # Apply Feature Restrictions for Guest Users
         if is_guest:

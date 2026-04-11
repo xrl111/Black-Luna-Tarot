@@ -149,7 +149,7 @@ async def main() -> None:
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ Wrote translated file: {OUTPUT_FILE}")
+    print(f" Wrote translated file: {OUTPUT_FILE}")
 
 
 if __name__ == "__main__":

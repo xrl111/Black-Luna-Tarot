@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS users (
     email           VARCHAR(255) UNIQUE NOT NULL,
     name            VARCHAR(255) NOT NULL,
     avatar_url      VARCHAR(500),
+    auth_provider   VARCHAR(50) DEFAULT 'email',
+    auth_provider_id VARCHAR(255),
 
     -- Preferences (flatten từ nested object trong MongoDB)
     experience_level    VARCHAR(50)  DEFAULT 'beginner',

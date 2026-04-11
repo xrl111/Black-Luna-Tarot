@@ -1,6 +1,6 @@
-# 🚀 Deployment Guide
+#  Deployment Guide
 
-## 🎯 **Tổng quan**
+##  **Tổng quan**
 
 Hướng dẫn deploy Black Luna Tarot lên các nền tảng miễn phí:
 
@@ -9,7 +9,7 @@ Hướng dẫn deploy Black Luna Tarot lên các nền tảng miễn phí:
 - **Database**: MongoDB Atlas (512MB storage miễn phí)
 - **AI**: Ollama local hoặc Groq API (fallback)
 
-## 📋 **Prerequisites**
+##  **Prerequisites**
 
 ### **1. Tài khoản cần thiết**
 
@@ -27,7 +27,7 @@ Hướng dẫn deploy Black Luna Tarot lên các nền tảng miễn phí:
 
 ---
 
-## 🗄️ **Database Setup**
+##  **Database Setup**
 
 ### **1. MongoDB Atlas**
 
@@ -80,7 +80,7 @@ asyncio.run(seed_database())
 
 ---
 
-## 🔧 **Backend Deployment (Render)**
+##  **Backend Deployment (Render)**
 
 ### **1. Chuẩn bị code**
 
@@ -153,7 +153,7 @@ curl https://your-backend.onrender.com/health
 
 ---
 
-## 🌐 **Frontend Deployment (Vercel)**
+##  **Frontend Deployment (Vercel)**
 
 ### **1. Chuẩn bị code**
 
@@ -210,7 +210,7 @@ VITE_API_ORIGIN=https://your-backend.onrender.com
 
 ---
 
-## 🤖 **AI Service Setup**
+##  **AI Service Setup**
 
 ### **Option 1: Ollama Local (Development)**
 
@@ -246,7 +246,7 @@ GROQ_API_KEY=your-groq-api-key
 
 ---
 
-## 🔒 **Security Configuration**
+##  **Security Configuration**
 
 ### **1. Environment Variables**
 
@@ -286,7 +286,7 @@ ENABLE_RATE_LIMITING=true
 
 ---
 
-## 📊 **Monitoring & Analytics**
+##  **Monitoring & Analytics**
 
 ### **1. Health Checks**
 
@@ -319,7 +319,7 @@ MongoDB Atlas Dashboard:
 
 ---
 
-## 🔄 **CI/CD Pipeline**
+##  **CI/CD Pipeline**
 
 ### **Auto-deployment**
 
@@ -373,7 +373,7 @@ jobs:
 
 ---
 
-## 🔧 **Maintenance**
+##  **Maintenance**
 
 ### **Dependencies**
 
@@ -396,7 +396,7 @@ npm update
 
 ---
 
-## 📊 **Cost Optimization**
+##  **Cost Optimization**
 
 ### **Free Tier Limits**
 
@@ -415,7 +415,7 @@ npm update
 
 ---
 
-## 🎉 **Deployment Checklist**
+##  **Deployment Checklist**
 
 - [ ] MongoDB Atlas cluster created
 - [ ] Database seeded with tarot cards
@@ -429,4 +429,4 @@ npm update
 - [ ] AI service connected (Ollama hoặc Groq)
 - [ ] Custom domain configured (optional)
 
-**🎯 Your Black Luna Tarot system is now live!**
+** Your Black Luna Tarot system is now live!**

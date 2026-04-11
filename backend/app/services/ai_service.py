@@ -1,4 +1,4 @@
-# 🎯 Tarot System - AI Service
+#  Tarot System - AI Service
 """
 Service layer for AI integration and tarot reading generation
 """

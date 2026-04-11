@@ -1,4 +1,4 @@
-# 🎴 Tarot System - Seed Data
+#  Tarot System - Seed Data
 """
 Initial data for tarot cards collection
 """
@@ -123,22 +123,22 @@ async def seed_database():
         # Check if data already exists
         existing_count = await collection.count_documents({})
         if existing_count > 0:
-            print(f"✅ Database already contains {existing_count} tarot cards")
+            print(f" Database already contains {existing_count} tarot cards")
             return
         
         # Insert tarot cards data
         result = await collection.insert_many(TAROT_CARDS_DATA)
-        print(f"✅ Successfully inserted {len(result.inserted_ids)} tarot cards")
+        print(f" Successfully inserted {len(result.inserted_ids)} tarot cards")
         
         # Create indexes for better performance
         await collection.create_index("name")
         await collection.create_index("suit")
         await collection.create_index("number")
         await collection.create_index("card_type")
-        print("✅ Database indexes created")
+        print(" Database indexes created")
         
     except Exception as e:
-        print(f"❌ Error seeding database: {e}")
+        print(f" Error seeding database: {e}")
         raise
     finally:
         client.close()

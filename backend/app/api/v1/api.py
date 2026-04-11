@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Main API Router
+#  Tarot System - Main API Router
 """
 Main API router that includes all endpoint routers
 """

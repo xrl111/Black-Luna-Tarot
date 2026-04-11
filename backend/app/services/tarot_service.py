@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Tarot Service Layer
+#  Tarot System - Tarot Service Layer
 """
 Business logic for tarot cards operations
 """

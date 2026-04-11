@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Upload Service
+#  Tarot System - Upload Service
 """
 Service layer for file upload and management
 """

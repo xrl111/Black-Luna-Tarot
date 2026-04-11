@@ -1,4 +1,4 @@
-# 📊 Big Data Architecture — Black Luna Tarot
+#  Big Data Architecture — Black Luna Tarot
 
 > **Tài liệu kiến trúc Big Data Pipeline cho luận văn Thạc sĩ.**
 > Phiên bản: 2.0 | Cập nhật: 2026-04-09
@@ -15,20 +15,20 @@ Hệ thống Black Luna Tarot triển khai **Lambda Architecture** với hai t�
 |------|---------|-----------|----------|
 | **OLTP** (Speed Layer) | Phục vụ user real-time | MongoDB, FastAPI | Low latency, flexible schema |
 | **OLAP** (Batch Layer) | Phân tích dữ liệu | HDFS, Hive, Spark | Columnar storage, batch queries |
-| **Message Bus** | Decouple OLTP ↔ OLAP | Apache Kafka | Event-driven, fault-tolerant |
+| **Message Bus** | Decouple OLTP  OLAP | Apache Kafka | Event-driven, fault-tolerant |
 
 ### 1.2 Kiến Trúc Tổng Thể
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
-│  React SPA  │────▶│  FastAPI     │────▶│  MongoDB        │
+│  React SPA  │────│  FastAPI     │────│  MongoDB        │
 │  (Frontend) │     │  (Backend)   │     │  (OLTP Store)   │
 └─────────────┘     └──────┬───────┘     └─────────────────┘
                            │
                     emit_event()
                            │
                     ┌──────▼───────┐
-                    │ Apache Kafka │◀──── Debezium CDC ◀── PostgreSQL
+                    │ Apache Kafka │──── Debezium CDC ── PostgreSQL
                     │ (KRaft mode) │
                     └──────┬───────┘
                            │
@@ -59,8 +59,8 @@ Hệ thống Black Luna Tarot triển khai **Lambda Architecture** với hai t�
 
 1. **User bấm "Lưu Reading"** trên frontend React
 2. **FastAPI Backend** → `ReadingService.create_reading()`:
-   - `insert_one()` vào MongoDB (OLTP) ✅
-   - `kafka_producer.emit_reading_event()` → topic `tarot-events` ✅
+   - `insert_one()` vào MongoDB (OLTP) 
+   - `kafka_producer.emit_reading_event()` → topic `tarot-events` 
    - Nếu Kafka fail → event lưu vào **Dead Letter Queue** (MongoDB collection)
 3. **Spark Structured Streaming** đọc từ Kafka mỗi 30 giây:
    - **Parse JSON** → schema matching với `kafka_producer.py`

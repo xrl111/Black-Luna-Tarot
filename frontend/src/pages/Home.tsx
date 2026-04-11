@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, Square, Eye, BookOpen, CheckCircle2 } from "lucide-react";
+import { Sparkles, Layers, Eye, BookOpen, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
 import {
@@ -14,7 +14,7 @@ import {
 const Home = () => {
   const features = [
     {
-      icon: <Square className="h-8 w-8" />,
+      icon: <Layers className="h-8 w-8" />,
       title: "Bộ bài đầy đủ",
       description:
         "Khám phá 78 lá bài Tarot với ý nghĩa chi tiết và thông tin phong phú",
@@ -92,7 +92,7 @@ const Home = () => {
               className="text-lg px-8 py-6"
             >
               <Link to="/cards">
-                <Square className="mr-2 h-5 w-5" />
+                <Layers className="mr-2 h-5 w-5" />
                 Xem bộ bài
               </Link>
             </Button>

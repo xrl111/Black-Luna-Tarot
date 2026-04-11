@@ -287,7 +287,7 @@ const Reading = () => {
       const result = await refetchCards();
       const cards = (result.data || []).map((c: TarotCard, idx: number) => ({
         ...c,
-        is_reversed: c.is_reversed ?? false,
+        is_reversed: c.is_reversed !== undefined ? c.is_reversed : Math.random() > 0.5,
         order_index: idx + 1,
       }));
       setDrawnCards(cards);
@@ -310,7 +310,7 @@ const Reading = () => {
       // Preserve selection order as draw order
       const cards = selectedCards.map((c, idx) => ({
         ...c,
-        is_reversed: c.is_reversed ?? false,
+        is_reversed: c.is_reversed !== undefined ? c.is_reversed : Math.random() > 0.5,
         order_index: idx + 1,
       }));
       setDrawnCards(cards);

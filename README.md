@@ -1,4 +1,4 @@
-# 🎴 Black Luna Tarot
+#  Black Luna Tarot
 
 > **Hệ thống xem bói Tarot AI hoàn toàn miễn phí - 0 đồng**
 
@@ -10,17 +10,17 @@
 [![Ollama](https://img.shields.io/badge/Ollama-Local-orange.svg)](https://ollama.ai)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 🌟 **Tính năng chính**
+##  **Tính năng chính**
 
-- **🤖 AI xem bói thông minh** — Sử dụng Ollama local (Qwen2, Llama 3) hoặc Cloud Router (Groq/OpenAI). Hệ thống có luồng suy luận ngầm rẽ nhánh logic (Auto Intake).
-- **🎴 78 lá bài Tarot** — Đầy đủ Major & Minor Arcana.
-- **🌐 Giao diện đẹp** — React 19 + TypeScript + Tailwind CSS + Shadcn/UI (Hỗ trợ Dark Mode/Light Mode).
-- **🔒 Phân Quyền & Cá Nhân Hoá** — Hệ thống tích hợp Google OAuth2. Chế độ Guest/Anonymous (Giới hạn lượt dùng), Chế độ Account (Được lưu giữ Personalization Persona).
-- **📈 Big Data Ready** — Xây dựng theo kiến trúc Pipeline Dữ Liệu Lớn. Sử dụng Debezium (CDC) -> Apache Kafka -> Apache Spark -> Hive Data Warehouse. Sẵn sàng cho việc phân tích và huấn luyện AI nâng cao.
-- **⚡ Streaming** — AI response hiển thị real-time siêu mượt.
-- **🚀 Miễn phí 100%** — Không tốn chi phí vận hành
+- ** AI xem bói thông minh** — Sử dụng Ollama local (Qwen2, Llama 3) hoặc Cloud Router (Groq/OpenAI). Hệ thống có luồng suy luận ngầm rẽ nhánh logic (Auto Intake).
+- ** 78 lá bài Tarot** — Đầy đủ Major & Minor Arcana.
+- ** Giao diện đẹp** — React 19 + TypeScript + Tailwind CSS + Shadcn/UI (Hỗ trợ Dark Mode/Light Mode).
+- ** Phân Quyền & Cá Nhân Hoá** — Hệ thống tích hợp Google OAuth2. Chế độ Guest/Anonymous (Giới hạn lượt dùng), Chế độ Account (Được lưu giữ Personalization Persona).
+- ** Big Data Ready** — Xây dựng theo kiến trúc Pipeline Dữ Liệu Lớn. Sử dụng Debezium (CDC) -> Apache Kafka -> Apache Spark -> Hive Data Warehouse. Sẵn sàng cho việc phân tích và huấn luyện AI nâng cao.
+- ** Streaming** — AI response hiển thị real-time siêu mượt.
+- ** Miễn phí 100%** — Không tốn chi phí vận hành
 
-## 🏗️ **Kiến trúc hệ thống**
+##  **Kiến trúc hệ thống**
 
 ```
 Black-Luna-Tarot/
@@ -39,7 +39,7 @@ Black-Luna-Tarot/
 └── docs/                   # Documentation and Guides
 ```
 
-## 🚀 **Cài đặt nhanh**
+##  **Cài đặt nhanh**
 
 ### **Yêu cầu hệ thống**
 
@@ -106,7 +106,7 @@ cd frontend
 npm run dev
 ```
 
-## 🌐 **Truy cập ứng dụng**
+##  **Truy cập ứng dụng**
 
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:8000
@@ -114,7 +114,7 @@ npm run dev
 - **ReDoc**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/health
 
-## 📖 **API Endpoints**
+##  **API Endpoints**
 
 | Group | Prefix | Chức năng |
 |-------|--------|-----------|
@@ -123,7 +123,7 @@ npm run dev
 | **AI Service** | `/api/v1/ai` | Generate & stream AI readings |
 | **System** | `/api/v1/system` | Health checks, connection status |
 
-## 🔧 **Cấu hình AI**
+##  **Cấu hình AI**
 
 ```bash
 # Tải models khác (optional)
@@ -133,7 +133,7 @@ ollama pull mistral
 
 Model mặc định có thể thay đổi qua `OLLAMA_MODEL` trong `.env`.
 
-## 🚀 **Deployment**
+##  **Deployment**
 
 - **Backend**: Render.com (miễn phí)
 - **Frontend**: Vercel (miễn phí)
@@ -141,14 +141,14 @@ Model mặc định có thể thay đổi qua `OLLAMA_MODEL` trong `.env`.
 
 Xem chi tiết tại [Deployment Guide](./docs/DEPLOYMENT.md).
 
-## 📚 **Documentation**
+##  **Documentation**
 
 - [Quick Start Guide](./docs/QUICKSTART.md)
 - [API Documentation](./docs/API.md)
 - [Database Schema](./docs/DATABASE.md)
 - [Deployment Guide](./docs/DEPLOYMENT.md)
 
-## 🤝 **Đóng góp**
+##  **Đóng góp**
 
 1. Fork dự án
 2. Tạo branch mới (`git checkout -b feature/amazing-feature`)
@@ -156,11 +156,11 @@ Xem chi tiết tại [Deployment Guide](./docs/DEPLOYMENT.md).
 4. Push lên branch (`git push origin feature/amazing-feature`)
 5. Tạo Pull Request
 
-## 📝 **License**
+##  **License**
 
 Dự án này được cấp phép theo [MIT License](LICENSE).
 
-## 🙏 **Cảm ơn**
+##  **Cảm ơn**
 
 - [Ollama](https://ollama.ai) — AI local
 - [FastAPI](https://fastapi.tiangolo.com) — Backend framework
@@ -171,4 +171,4 @@ Dự án này được cấp phép theo [MIT License](LICENSE).
 
 ---
 
-⭐ **Nếu dự án này hữu ích, hãy cho chúng tôi một ngôi sao!**
+ **Nếu dự án này hữu ích, hãy cho chúng tôi một ngôi sao!**

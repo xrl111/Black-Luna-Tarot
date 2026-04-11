@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Tarot Cards API Endpoints
+#  Tarot System - Tarot Cards API Endpoints
 """
 API endpoints for tarot cards management
 """

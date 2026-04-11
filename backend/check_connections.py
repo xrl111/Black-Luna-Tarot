@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 🎯 Tarot System - Connection Check Script
+#  Tarot System - Connection Check Script
 """
 Command-line script to check MongoDB and Ollama connections
 """
@@ -41,7 +41,7 @@ async def main():
     """Main function to check all connections"""
     
     print("=" * 60)
-    print("🎯 Tarot System - Connection Check")
+    print(" Tarot System - Connection Check")
     print("=" * 60)
     
     logger.info("Starting connection checks...")
@@ -51,65 +51,65 @@ async def main():
         summary = await log_connection_status(detailed=True)
         
         print("\n" + "=" * 60)
-        print("📊 SUMMARY")
+        print(" SUMMARY")
         print("=" * 60)
         
         if summary["all_connected"]:
-            print("✅ Status: ALL SERVICES CONNECTED")
-            print(f"✅ Connected: {summary['connected_services']}/{summary['total_services']}")
-            print("🚀 System is ready for operation!")
+            print(" Status: ALL SERVICES CONNECTED")
+            print(f" Connected: {summary['connected_services']}/{summary['total_services']}")
+            print(" System is ready for operation!")
         else:
-            print("❌ Status: SOME SERVICES DISCONNECTED")
-            print(f"⚠️  Connected: {summary['connected_services']}/{summary['total_services']}")
-            print("💡 Please check the error messages above and ensure all services are running")
+            print(" Status: SOME SERVICES DISCONNECTED")
+            print(f"  Connected: {summary['connected_services']}/{summary['total_services']}")
+            print(" Please check the error messages above and ensure all services are running")
         
-        print("\n💡 Tips:")
+        print("\n Tips:")
         print("   • MongoDB: Ensure MongoDB is running on", settings.MONGODB_URI)
         print("   • Ollama: Ensure Ollama is running on", settings.OLLAMA_URL)
         print("   • Check firewall and network connectivity")
         
-        print("\n🔗 API Endpoints:")
+        print("\n API Endpoints:")
         print(f"   • Health Check: http://{settings.HOST}:{settings.PORT}/health")
         print(f"   • Connection Status: http://{settings.HOST}:{settings.PORT}/api/v1/system/connections")
         print(f"   • Refresh Connections: http://{settings.HOST}:{settings.PORT}/api/v1/system/connections/refresh")
         
         # Exit with appropriate code
         if summary["all_connected"]:
-            print("\n🎉 All checks passed!")
+            print("\n All checks passed!")
             sys.exit(0)
         else:
-            print("\n⚠️  Some checks failed!")
+            print("\n  Some checks failed!")
             sys.exit(1)
             
     except Exception as e:
         logger.error("Connection check failed", error=str(e))
-        print(f"\n❌ Connection check failed: {e}")
+        print(f"\n Connection check failed: {e}")
         sys.exit(1)
 
 async def check_individual_services():
     """Check individual services separately"""
     
-    print("\n🔍 Individual Service Checks")
+    print("\n Individual Service Checks")
     print("-" * 40)
     
     # Check MongoDB
-    print("\n📊 Checking MongoDB...")
+    print("\n Checking MongoDB...")
     mongodb_status = await connection_service.check_mongodb_connection()
     if mongodb_status.connected:
-        print("✅ MongoDB: Connected")
+        print(" MongoDB: Connected")
         if mongodb_status.details:
             print(f"   • Database: {mongodb_status.details.get('database')}")
             print(f"   • Version: {mongodb_status.details.get('server_version')}")
             print(f"   • Response Time: {mongodb_status.details.get('response_time_ms')}ms")
     else:
-        print("❌ MongoDB: Disconnected")
+        print(" MongoDB: Disconnected")
         print(f"   • Error: {mongodb_status.error}")
     
     # Check Ollama
-    print("\n🤖 Checking Ollama...")
+    print("\n Checking Ollama...")
     ollama_status = await connection_service.check_ollama_connection()
     if ollama_status.connected:
-        print("✅ Ollama: Connected")
+        print(" Ollama: Connected")
         if ollama_status.details:
             print(f"   • URL: {ollama_status.details.get('url')}")
             print(f"   • Default Model: {ollama_status.details.get('default_model')}")
@@ -117,7 +117,7 @@ async def check_individual_services():
             print(f"   • Total Models: {ollama_status.details.get('model_count')}")
             print(f"   • Response Time: {ollama_status.details.get('response_time_ms')}ms")
     else:
-        print("❌ Ollama: Disconnected")
+        print(" Ollama: Disconnected")
         print(f"   • Error: {ollama_status.error}")
 
 if __name__ == "__main__":

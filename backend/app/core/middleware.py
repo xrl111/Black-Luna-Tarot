@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Custom Middleware
+#  Tarot System - Custom Middleware
 """
 Custom middleware for logging, rate limiting, and request processing
 """

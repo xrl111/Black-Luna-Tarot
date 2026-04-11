@@ -7,55 +7,60 @@ from app.core.database import get_database
 from app.core.security import get_current_user
 from app.database.models import User, UserPreferences
 
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.core.postgres import get_pg_db
+from app.database.pg_models import PGUser
+
 logger = structlog.get_logger()
 router = APIRouter()
 
-def get_users_collection() -> AsyncIOMotorCollection:
-    db = get_database()
-    return db["users"]
-
 @router.get("/me", response_model=User)
 async def get_current_user_profile(
-    current_user: User = Depends(get_current_user)
+    current_user: PGUser = Depends(get_current_user)
 ) -> Any:
     """
-    Get current user profile and preferences.
+    Get current user profile and preferences from Postgres but mapped to Pydantic Model.
     """
-    return current_user
+    return current_user.to_pydantic_dict()
 
 @router.put("/me/preferences", response_model=UserPreferences)
 async def update_user_preferences(
     preferences: UserPreferences,
-    current_user: User = Depends(get_current_user),
-    collection: AsyncIOMotorCollection = Depends(get_users_collection)
+    current_user: PGUser = Depends(get_current_user),
+    session: AsyncSession = Depends(get_pg_db)
 ) -> Any:
     """
-    Update current user's AI personalization preferences.
+    Update current user's AI personalization preferences into Postgres.
     """
     try:
         # Convert preferences to dict, excluding unset fields
         prefs_dict = preferences.dict(exclude_unset=True)
         
-        # Build update query for MongoDB dot notation
-        update_query = {}
-        for key, value in prefs_dict.items():
-            update_query[f"preferences.{key}"] = value
-            
-        if not update_query:
-            return current_user.preferences
-
-        # Update in MongoDB
-        await collection.update_one(
-            {"_id": current_user.id},
-            {"$set": update_query}
-        )
+        # We need to map pydantic fields to Postgres columns
+        mapping = {
+            "experience_level": "experience_level",
+            "belief_system": "belief_system",
+            "cultural_background": "cultural_background",
+            "reading_frequency": "reading_frequency",
+            "reading_style": "preferred_style",
+            "language": "language_preference",
+            "tarot_tradition": "tarot_tradition"
+        }
         
-        # Merge updated preferences into current_user object to return
+        # Fetch the user again inside this session to update
+        res = await session.execute(select(PGUser).where(PGUser.id == current_user.id))
+        user_to_update = res.scalar_one()
+
+        # Update columns in Postgres
         for key, value in prefs_dict.items():
-            setattr(current_user.preferences, key, value)
+            if key in mapping:
+                setattr(user_to_update, mapping[key], value)
             
-        logger.info("Updated user preferences", user_id=str(current_user.id))
-        return current_user.preferences
+        await session.commit()
+        
+        logger.info("Updated user preferences in Postgres", user_id=str(current_user.id))
+        return user_to_update.to_pydantic_dict().get("preferences")
         
     except Exception as e:
         logger.error("Failed to update user preferences", user_id=str(current_user.id), error=str(e))

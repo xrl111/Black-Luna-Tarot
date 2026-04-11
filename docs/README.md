@@ -1,63 +1,63 @@
-# 📚 Documentation Index
+#  Documentation Index
 
-## 🎯 **Tổng quan**
+##  **Tổng quan**
 
 Chào mừng bạn đến với documentation của **Black Luna Tarot** - Hệ thống xem bói Tarot AI hoàn toàn miễn phí!
 
-## 📖 **Tài liệu chính**
+##  **Tài liệu chính**
 
-### **🚀 [Quick Start Guide](./QUICKSTART.md)**
+### ** [Quick Start Guide](./QUICKSTART.md)**
 
 - Cài đặt nhanh trong 5 phút
 - Hướng dẫn sử dụng cơ bản
 - Troubleshooting thường gặp
 - **Bắt đầu từ đây nếu bạn mới!**
 
-### **📚 [API Documentation](./API.md)**
+### ** [API Documentation](./API.md)**
 
 - Tất cả API endpoints
 - Request/Response examples
 - Error handling
 - Testing với Swagger UI
 
-### **🗄️ [Database Schema](./DATABASE.md)**
+### ** [Database Schema](./DATABASE.md)**
 
 - MongoDB collections design
 - Indexes & performance
 - Query examples
 - Backup & recovery
 
-### **🚀 [Deployment Guide](./DEPLOYMENT.md)**
+### ** [Deployment Guide](./DEPLOYMENT.md)**
 
 - Deploy lên Render + Vercel
 - MongoDB Atlas setup
 - Environment configuration
 - Monitoring & maintenance
 
-## 🎴 **Tính năng hệ thống**
+##  **Tính năng hệ thống**
 
-### **🤖 AI Integration**
+### ** AI Integration**
 
 - **Ollama Local**: Qwen2 7B (mặc định), Llama 3, Mistral
 - **Groq API**: Fast inference (fallback)
 - **Streaming**: Hỗ trợ streaming response real-time
 - **Prompt Engineering**: Optimized cho tarot readings tiếng Việt
 
-### **🎴 Tarot Cards**
+### ** Tarot Cards**
 
 - **78 lá bài**: Major & Minor Arcana
 - **Đa ngôn ngữ**: Tiếng Việt + English
 - **Chi tiết**: Meanings, keywords, associations
 - **Hình ảnh**: Phục vụ qua API endpoint
 
-### **📊 System Monitoring**
+### ** System Monitoring**
 
 - **Health checks**: Full & simple endpoints
 - **Connection status**: MongoDB & Ollama
 - **Structured logging**: JSON format với structlog
 - **Rate limiting**: Per IP
 
-### **🔒 Security**
+### ** Security**
 
 - **Session-based**: Anonymous users
 - **Rate limiting**: Per minute & per hour
@@ -65,7 +65,7 @@ Chào mừng bạn đến với documentation của **Black Luna Tarot** - Hệ 
 - **CORS**: Configured domains
 - **Input validation**: Pydantic models
 
-## 🏗️ **Kiến trúc hệ thống**
+##  **Kiến trúc hệ thống**
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -92,7 +92,7 @@ Chào mừng bạn đến với documentation của **Black Luna Tarot** - Hệ 
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## 🔧 **Development Workflow**
+##  **Development Workflow**
 
 ### **Local Development**
 
@@ -141,7 +141,7 @@ cd frontend && npm run lint
 cd frontend && tsc -b
 ```
 
-## 🚀 **API Endpoints Overview**
+##  **API Endpoints Overview**
 
 | Group | Prefix | Chức năng |
 |-------|--------|-----------|
@@ -150,7 +150,7 @@ cd frontend && tsc -b
 | **AI Service** | `/api/v1/ai` | Generate & stream AI readings |
 | **System** | `/api/v1/system` | Health checks, connection status |
 
-## 🚀 **Deployment Options**
+##  **Deployment Options**
 
 ### **Free Tier (0 đồng)**
 
@@ -159,7 +159,7 @@ cd frontend && tsc -b
 - **Database**: MongoDB Atlas (512MB)
 - **AI**: Ollama local hoặc Groq API
 
-## 📈 **Scaling Strategy**
+##  **Scaling Strategy**
 
 ### **Phase 1: MVP (Hiện tại)**
 
@@ -179,21 +179,21 @@ cd frontend && tsc -b
 - Multi-region deployment
 - Custom integrations
 
-## 🎉 **Getting Started**
+##  **Getting Started**
 
 ### **For Users**
 
-1. 📖 Read [Quick Start Guide](./QUICKSTART.md)
-2. 🚀 Deploy your instance
-3. 🎴 Start using the system
+1.  Read [Quick Start Guide](./QUICKSTART.md)
+2.  Deploy your instance
+3.  Start using the system
 
 ### **For Developers**
 
-1. 📚 Read [API Documentation](./API.md)
-2. 🗄️ Understand [Database Schema](./DATABASE.md)
-3. 🔧 Set up development environment
-4. 🚀 Deploy to production via [Deployment Guide](./DEPLOYMENT.md)
+1.  Read [API Documentation](./API.md)
+2.  Understand [Database Schema](./DATABASE.md)
+3.  Set up development environment
+4.  Deploy to production via [Deployment Guide](./DEPLOYMENT.md)
 
 ---
 
-**🎯 Ready to start your tarot AI journey? Choose your path above!**
+** Ready to start your tarot AI journey? Choose your path above!**

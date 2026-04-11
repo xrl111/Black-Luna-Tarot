@@ -1,4 +1,4 @@
-# 🎯 Tarot System - Exception Handling
+#  Tarot System - Exception Handling
 """
 Custom exception classes and handlers
 """
